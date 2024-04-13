@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification</title>
+</head>
+<body>
+    <h1>Upload Travel ID Image</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="imageFile">Select Image:</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*">
+        <br>
+        <button type="button" onclick="uploadImage()">Predict Image</button>
+    </form>
+
+    <div id="predictionResult"></div>
+
+    <script>
+        function uploadImage() {
+            var formData = new FormData();
+            var fileInput = document.getElementById('imageFile');
+            var file = fileInput.files[0];
+            formData.append('imageFile', file);
+
+            fetch('http://localhost:5000/image/clasify', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Menampilkan hasil prediksi pada halaman HTML
+                var resultDiv = document.getElementById('predictionResult');
+                resultDiv.innerHTML = '<h2>Prediction Result:</h2>';
+                data.forEach(prediction => {
+                    resultDiv.innerHTML += `<p>${prediction.className}: ${prediction.probability}</p>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

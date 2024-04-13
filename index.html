@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification</title>
+    <!-- <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:display=swap');
+        *{
+            font-family: "Poppins", sans-serif;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        header{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            padding: 20px 100px;
+            background: #28667E;
+            display: flex;
+            justify-content: space-between;
+        }
+        img{
+            width: 300px;
+            height: 144px;
+        }
+        body{
+            background-color: #ECF4D6;
+        }
+        form img{
+            width: 120px;
+            height: 120px;
+        }
+        .container button{
+            font-size: x-large;
+            padding: 10px 25px;
+            border-radius: 20px;
+            border: none;
+            background-color: #2D9596;
+            color: white;
+            margin-top: 20px;
+        }
+        form label{
+            font-size: 24px;
+            font-weight: 400;
+        }
+        .navigation img{
+            display: flex;
+            width: 80px;
+            height: 80px;
+            border-radius: 100%;
+        }
+        .container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 150px;
+        }
+        #uploadForm {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            border-width: 5px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px auto;
+            width: 60%;
+        }
+        #uploadForm.dragover {
+            background-color: #f0f0f0;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style> -->
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+    <header>
+        <img src="img/Logo.png" alt="logo">
+        <nav class="navigation">
+            <img src="img/profile.jpeg" alt="">
+        </nav>
+    </header>
+    <div class="container">
+        <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
+            <img src="img/camera_enhance.png" alt="" srcset=""><br>
+            <input type="file" name="imageFile" id="fileInput" style="display: none;">
+            <label for="fileInput"> Pilih gambar yang akan di diagnosa</label><br>
+            <label for="fileInput">Drag & drop or click here to upload</label><br>
+            <button type="submit">Unggah</button>
+        </form>
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+        const fileInput = document.getElementById("fileInput");
+
+        // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
+        // Fungsi async yang akan mengirim formulir dan menampilkan output JSON
+        async function submitForm(event) {
+            event.preventDefault(); // Mencegah pengiriman formulir secara default
+
+            // Mengirim formulir menggunakan Fetch API
+            const formData = new FormData(this);
+            const response = await fetch(this.action, {
+                method: this.method,
+                body: formData
+            });
+
+            // Mendapatkan hasil respons dalam bentuk JSON
+            const result = await response.json();
+
+            // Menampilkan hasil respons di dalam elemen output
+            const outputElement = document.getElementById("output");
+            outputElement.innerHTML = JSON.stringify(result, null, 2);
+        }
+
+        // Menambahkan event listener ke formulir untuk menangani pengiriman formulir
+        form.addEventListener("submit", submitForm);
+
+        // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
+        document.body.addEventListener("dragover", function(event) {
+            event.preventDefault();
+            form.classList.add("dragover");
+        });
+
+        document.body.addEventListener("dragleave", function(event) {
+            event.preventDefault();
+            form.classList.remove("dragover");
+        });
+
+        // Menangani peristiwa drop
+        document.body.addEventListener("drop", function(event) {
+            event.preventDefault();
+            form.classList.remove("dragover");
+
+            // Mengakses file yang dijatuhkan
+            const droppedFiles = event.dataTransfer.files;
+
+            // Jika ada file yang dijatuhkan, masukkan ke dalam input file dan kirim formulir
+            if (droppedFiles.length > 0) {
+                fileInput.files = droppedFiles;
+                form.addEventListener("submit", submitForm);
+            }
+        });
+    </script>
+</body>
+</html>
