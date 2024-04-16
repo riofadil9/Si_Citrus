@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Classification</title>
-    <!-- <style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:display=swap');
         *{
             font-family: "Poppins", sans-serif;
@@ -79,7 +79,54 @@
             padding: 10px;
             border: 1px solid #ccc;
         }
-    </style> -->
+        .sidebar{
+            display: flex;
+            justify-content: left;
+            flex-direction: column  ;
+            margin-left: 32px;
+            width: 259px;
+            /* height: 100%; */
+            background-color: #28667E;
+            border-radius: 30px;
+            padding: 24px 16px;
+            text-align: center;
+            /* font-size: 20px; */
+            /* text-decoration: none; */
+            font-weight: 200;
+            box-sizing: border-box;
+        }
+        .sidebar button{
+            margin-top: 65vh;
+            width: 227px;
+            height: 58px;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 300;
+            color: white;
+            background-color: #2D9596;
+        }
+        .sidebar a{
+            display: flex;
+            align-items: center;
+            width: 227px;
+            height: 58px;
+            border-radius: 10px;
+            background-color: #2D9596;
+            color: white;
+            font-size: 20px;
+            font-weight: 300;
+            text-decoration: none;
+        }
+        .flex{
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
+            /* align-items: center; */
+            gap: 20px;
+            min-height: 80vh;
+        }
+    </style>
     <link rel="stylesheet" type="text/css" href="/styles.css">
 </head>
 <body>
@@ -89,21 +136,41 @@
             <img src="img/profile.jpeg" alt="">
         </nav>
     </header>
-    <div class="container">
-        <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
-            <img src="img/camera_enhance.png" alt="" srcset=""><br>
-            <input type="file" name="imageFile" id="fileInput" style="display: none;">
-            <label for="fileInput"> Pilih gambar yang akan di diagnosa</label><br>
-            <label for="fileInput">Drag & drop or click here to upload</label><br>
-            <button type="submit">Unggah</button>
-        </form>
+    <div style="height: 150px;"></div>
+    <div class="flex">
+        <div class="sidebar">
+            <button id="lakukanDiagnosa">Tambah Gambar</button><br>
+            <a href="/">Artikel</a>
+        </div>
+        <div class="container">
+            <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
+                <button id="closeForm">x</button>
+                <img src="img/camera_enhance.png" alt="" srcset=""><br>
+                <input type="file" name="imageFile" id="fileInput" style="display: none;">
+                <label for="fileInput"> Pilih gambar yang akan di diagnosa</label><br>
+                <label for="fileInput">Drag & drop or click here to upload</label><br>
+                <button type="submit">Unggah</button>
+            </form>
+        </div>
+
+        <div id="output"></div>
     </div>
-
-    <div id="output"></div>
-
     <script>
+        const lakukanDiagnosaButton = document.getElementById("lakukanDiagnosa");
         const form = document.getElementById("uploadForm");
         const fileInput = document.getElementById("fileInput");
+        const closeButton = document.getElementById("closeForm");
+        const outputDiv = document.getElementById("output");
+
+        lakukanDiagnosaButton.addEventListener("click", function() {
+            formContainer.style.display = "flex"; // Tampilkan form saat tombol ditekan
+            outputDiv.style.display = "none"; // Sembunyikan div output saat form muncul
+        });
+                // const closeButton = document.getElementById("closeForm");
+        closeButton.addEventListener("click", function() {
+            formContainer.style.display = "none"; // Sembunyikan form saat tombol "Close" ditekan
+            outputDiv.style.display = "flex"; // Tampilkan kembali div output saat form disembunyikan
+        });
 
         // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
         // Fungsi async yang akan mengirim formulir dan menampilkan output JSON
