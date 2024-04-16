@@ -153,6 +153,9 @@
             gap: 20px;
             min-height: 80vh;
         }
+        #dropArea{
+            background-image: "/upload/Image (1).png";
+        }
     </style>
     <link rel="stylesheet" type="text/css" href="/styles.css">
 </head>
@@ -172,10 +175,16 @@
         <div class="container">
             <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
                 <a id="closeForm" href="#">x</a>
-                <img src="/uploads/img/camera_enhance.png" alt="" srcset=""><br>
-                <input type="file" name="imageFile" id="fileInput" style="display: none;">
-                <label for="fileInput" id="label">Pilih gambar yang akan di diagnosa</label><br>
-                <label for="fileInput" id="label1">Drag & drop or click here to upload</label><br>
+                <label for="fileInput" id="dropArea">
+                    <input type="file" name="imageFile" id="fileInput" accept="image/*" style="display: none;">
+                    <div id="img-view">
+                        <img id="preview" src="/uploads/img/camera_enhance.png" alt="" srcset=""><br>
+                        <p>Pilih gambar yang akan di diagnosa</p>
+                        <span>Drag & drop or click here to upload</span>
+                    </div>
+                    <!-- <label for="fileInput" id="label">Pilih gambar yang akan di diagnosa</label><br>
+                    <label for="fileInput" id="label1">Drag & drop or click here to upload</label><br> -->
+                </label>
                 <button type="submit">Tambah Gambar</button>
             </form>
         </div>
@@ -183,76 +192,12 @@
 
     </div>
     <script>
-        // const lakukanDiagnosaButton = document.getElementById("lakukanDiagnosa");
-        // const form = document.getElementById("uploadForm");
-        // const fileInput = document.getElementById("fileInput");
-        // const closeButton = document.getElementById("closeForm");
-        // const outputDiv = document.getElementById("output");
-        // // const formContainer = document.getElementById("")
-
-        // lakukanDiagnosaButton.addEventListener("click", function() {
-        //     form.style.display = "flex"; // Tampilkan form saat tombol ditekan
-        //     outputDiv.style.display = "none"; // Sembunyikan div output saat form muncul
-        // });
-        //         // const closeButton = document.getElementById("closeForm");
-        // closeButton.addEventListener("click", function() {
-        //     form.style.display = "none"; // Sembunyikan form saat tombol "Close" ditekan
-        //     outputDiv.style.display = "flex"; // Tampilkan kembali div output saat form disembunyikan
-        // });
-
-        // // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
-        // // Fungsi async yang akan mengirim formulir dan menampilkan output JSON
-        // async function submitForm(event) {
-        //     event.preventDefault(); // Mencegah pengiriman formulir secara default
-
-        //     // Mengirim formulir menggunakan Fetch API
-        //     const formData = new FormData(this);
-        //     const response = await fetch(this.action, {
-        //         method: this.method,
-        //         body: formData
-        //     });
-
-        //     // Mendapatkan hasil respons dalam bentuk JSON
-        //     const result = await response.json();
-
-        //     // Menampilkan hasil respons di dalam elemen output
-        //     const outputElement = document.getElementById("output");
-        //     outputElement.innerHTML = JSON.stringify(result, null, 2);
-        // }
-
-        // // Menambahkan event listener ke formulir untuk menangani pengiriman formulir
-        // form.addEventListener("submit", submitForm);
-
-        // // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
-        // document.body.addEventListener("dragover", function(event) {
-        //     event.preventDefault();
-        //     form.classList.add("dragover");
-        // });
-
-        // document.body.addEventListener("dragleave", function(event) {
-        //     event.preventDefault();
-        //     form.classList.remove("dragover");
-        // });
-
-        // // Menangani peristiwa drop
-        // document.body.addEventListener("drop", function(event) {
-        //     event.preventDefault();
-        //     form.classList.remove("dragover");
-
-        //     // Mengakses file yang dijatuhkan
-        //     const droppedFiles = event.dataTransfer.files;
-
-        //     // Jika ada file yang dijatuhkan, masukkan ke dalam input file dan kirim formulir
-        //     if (droppedFiles.length > 0) {
-        //         fileInput.files = droppedFiles;
-        //         form.addEventListener("submit", submitForm);
-        //     }
-        // });
         document.addEventListener("DOMContentLoaded", function() {
             const lakukanDiagnosaButton = document.getElementById("lakukanDiagnosa");
             const formContainer = document.querySelector(".container");
             const outputDiv = document.getElementById("output");
-
+            const dropArea = document.getElementById('dropArea');
+            const imgView = document.getElementById("img-view");
 
             lakukanDiagnosaButton.addEventListener("click", function() {
                 formContainer.style.display = "flex"; // Tampilkan form saat tombol ditekan
@@ -267,7 +212,7 @@
 
             const form = document.getElementById("uploadForm");
             const fileInput = document.getElementById("fileInput");
-
+            // const imgView = document.getElementById("")
             // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
             // Fungsi async yang akan mengirim formulir dan menampilkan output JSON
             async function submitForm(event) {
@@ -291,10 +236,30 @@
                 formContainer.style.display = "none";
                 outputDiv.style.display = "block"; // Tampilkan kembali div output
             }
+            // function previewImage(event) {
+            //     var input = event.target;
+            //     var preview = document.getElementById('preview');
+
+            //     var reader = new FileReader();
+            //     reader.onload = function(){
+            //         preview.src = reader.result;
+            //         preview.style.display = 'flex';
+            //     }
+            //     reader.readAsDataURL(input.files[0]);
+            //     console.log("test");
+            // }
 
             // Menambahkan event listener ke formulir untuk menangani pengiriman formulir
+            dropArea.addEventListener("change",uploadImage);
+            function uploadImage() {
+                let imgLink = URL.createObjectURL(fileInput.files[0]);
+                dropArea.style.backgroundImage = `url("/uploads/${fileInput.files[0].name}")`;
+                // console.log(fileInput.files[0].name)
+                imgView.style.opacity = 0;
+                // document.getElementById('fileInput').style.backgroundImage = `URL(${imgLink})`;
+            }
+            
             form.addEventListener("submit", submitForm);
-
             // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
             document.body.addEventListener("dragover", function(event) {
                 event.preventDefault();
@@ -318,6 +283,7 @@
                 if (droppedFiles.length > 0) {
                     fileInput.files = droppedFiles;
                     form.addEventListener("submit", submitForm);
+                    uploadImage();
                 }
             });
         });
