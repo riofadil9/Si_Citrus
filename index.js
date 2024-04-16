@@ -13,7 +13,7 @@ const model = new teachableMachine({
 const app = express();
 // Menentukan port yang akan digunakan, jika tidak ada di environment variable, maka gunakan port 5000
 const port = process.env.PORT || 5000;
-
+app.set('view engine','ejs')
 // Menggunakan middleware untuk mengurai body permintaan yang masuk sebagai JSON
 app.use(express.json());
 // Menggunakan middleware untuk mengurai body permintaan yang masuk sebagai URL-encoded data
@@ -26,7 +26,10 @@ app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'form')));
 // Menangani permintaan GET pada akar URL, menampilkan form unggah gambar
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.render('beranda');
+});
+app.get("/diagnosa", (req, res) => {
+    res.render('diagnosa');
 });
 
 // Menangani permintaan POST untuk mengklasifikasikan gambar yang diunggah
