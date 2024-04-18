@@ -34,8 +34,8 @@
             background-color: #ECF4D6;
         }
         form img{
-            width: 120px;
-            height: 120px;
+            width: 240px;
+            height: 240px;
         }
         .container button{
             font-size: x-large;
@@ -47,7 +47,7 @@
             margin: 20px 0;
         }
         form label{
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 400;
         }
         form a{
@@ -83,6 +83,12 @@
             display: flex;
             flex-direction: column;
         }
+        form p{
+            font-size: 32px;
+        }
+        form span{
+            font-weight: 300;
+        }
         #uploadForm {
             border: 2px dashed #ccc;
             border-radius: 10px;
@@ -90,10 +96,10 @@
             padding: 20px;
             text-align: center;
             /* margin: 20px auto; */
-            width: 40%;
+            width: 70%;
             height: 60%;
         }
-        #uploadForm.dragover {
+        .highlight {
             background-color: #23dc5d;
         }
         #output {
@@ -154,7 +160,8 @@
             min-height: 80vh;
         }
         #dropArea{
-            background-image: "/upload/Image (1).png";
+            background-position: center;
+            background-size: cover;
         }
     </style>
     <link rel="stylesheet" type="text/css" href="/styles.css">
@@ -179,8 +186,8 @@
                     <input type="file" name="imageFile" id="fileInput" accept="image/*" style="display: none;">
                     <div id="img-view">
                         <img id="preview" src="/uploads/img/camera_enhance.png" alt="" srcset=""><br>
-                        <p>Pilih gambar yang akan di diagnosa</p>
-                        <span>Drag & drop or click here to upload</span>
+                        <p>Tambahkan gambar yang ingin diolah</p>
+                        <span>Tambah gambar dengan format  .jpg .jpng .png <br> Pastikan gambar yang ditambahkan gambar daun jeruk <br> disarankan background berwarna putih untuk meningkatkan akurasi</span>
                     </div>
                     <!-- <label for="fileInput" id="label">Pilih gambar yang akan di diagnosa</label><br>
                     <label for="fileInput" id="label1">Drag & drop or click here to upload</label><br> -->
@@ -250,41 +257,68 @@
             // }
 
             // Menambahkan event listener ke formulir untuk menangani pengiriman formulir
-            dropArea.addEventListener("change",uploadImage);
-            function uploadImage() {
-                let imgLink = URL.createObjectURL(fileInput.files[0]);
-                dropArea.style.backgroundImage = `url("/uploads/${fileInput.files[0].name}")`;
+            // dropArea.addEventListener("change",uploadImage);
+            function uploadImage(event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('preview').src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+                // let imgLink = URL.createObjectURL(fileInput.files[0]);
+                // dropArea.style.backgroundImage = `url("/uploads/${fileInput.files[0].name}")`;
                 // console.log(fileInput.files[0].name)
-                imgView.style.opacity = 0;
+                // imgView.style.opacity = 0;
                 // document.getElementById('fileInput').style.backgroundImage = `URL(${imgLink})`;
             }
-            
+            document.getElementById('fileInput').addEventListener('change', function(event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('preview').src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
             form.addEventListener("submit", submitForm);
             // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
-            document.body.addEventListener("dragover", function(event) {
-                event.preventDefault();
-                form.classList.add("dragover");
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
             });
 
-            document.body.addEventListener("dragleave", function(event) {
-                event.preventDefault();
-                form.classList.remove("dragover");
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            dropArea.addEventListener('dragover', function(e) {
+                this.classList.add('highlight');
             });
 
-            // Menangani peristiwa drop
-            document.body.addEventListener("drop", function(event) {
-                event.preventDefault();
-                form.classList.remove("dragover");
+            dropArea.addEventListener('dragleave', function() {
+                this.classList.remove('highlight');
+            });
 
-                // Mengakses file yang dijatuhkan
-                const droppedFiles = event.dataTransfer.files;
+            dropArea.addEventListener('drop', function(e) {
+                this.classList.remove('highlight');
+                fileInput.files = e.dataTransfer.files;
+                previewFile(fileInput.files[0]);
+            });
 
-                // Jika ada file yang dijatuhkan, masukkan ke dalam input file dan kirim formulir
-                if (droppedFiles.length > 0) {
-                    fileInput.files = droppedFiles;
-                    form.addEventListener("submit", submitForm);
-                    uploadImage();
+            function previewFile(file) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    document.getElementById('preview').src = reader.result;
                 }
+                if (file) {
+                    reader.readAsDataURL(file);
+                } else {
+                    document.getElementById('preview').src = "/uploads/img/camera_enhance.png";
+                }
+            }
+
+            fileInput.addEventListener('change', function() {
+                previewFile(fileInput.files[0]);
             });
         });
 
