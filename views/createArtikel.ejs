@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:display=swap');
+        *{
+            font-family: "Poppins", sans-serif;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        header{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            padding: 20px 100px;
+            background: #28667E;
+            display: flex;
+            justify-content: space-between;
+        }
+        img{
+            width: 300px;
+            height: 144px;
+        }
+        body{
+            background-color: #ECF4D6;
+        }
+        .navigation img{
+            display: flex;
+            width: 80px;
+            height: 80px;
+            border-radius: 100%;
+        }
+        a{
+            color: white;
+            border-radius: 10%;
+            text-decoration: none;
+            background-color: #28667E;
+            padding: 5px;
+            font-size: x-large;
+        }
+        a img{
+            width: 58px;
+            height: 51px;
+        }
+        .btnDiagnosa{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 253px;
+            height: 83px;
+            position: absolute;
+            right: 50px;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/uploads/img/Logo.png" alt="logo">
+        <nav class="flex gap-20 navigation">
+            <form action="/search" class="flex" method="post">
+                <input class="w-96 h-14 text-xl rounded-2xl" type="text" name="keyword" placeholder="Masukkan kata kunci pencarian">
+                <button class="text-[#28667E] bg-white w-20 h-10 font-bold rounded-2xl" type="submit" hidden>Cari</button>
+            </form>
+            <img src="/uploads/img/profile.jpeg" alt="">
+        </nav>
+    </header>
+    
+    <div style="height: 150px;"></div>
+    <main class="px-8 flex flex-col items-start gap-8 justify-center">
+    <!-- <h1 class="font-bold text-6xl">Artikel Jeruk</h1> -->
+        <h2 class="font-bold text-6xl">Tambah Artikel Baru</h2>
+        <!-- <h1>Create New Article</h1> -->
+
+        <form class="flex flex-col  bg-[#28667E] items-start rounded-3xl p-8 w-4/5" action="/artikel" method="post" enctype="multipart/form-data">
+            <label class="text-4xl text-white" for="namaArtikel">Nama Artikel:</label>
+            <input class="w-full h-10 text-2xl text-left p-3" type="text" id="namaArtikel" name="namaArtikel" required><br>
+
+            <label class="text-4xl text-white" for="penyebab">Penyebab:</label>
+            <input class="w-full h-10 text-2xl text-left  p-3" type="text" id="penyebab" name="penyebab" required><br>
+
+            <label class="text-4xl text-white" for="ciri">Ciri:</label>
+            <textarea class="w-full h-32 text-2xl text-left p-3" id="ciri" name="ciri" required></textarea><br>
+
+            <label class="text-4xl text-white" for="langkahPenanganan">Langkah Penanganan:</label>
+            <textarea class="w-full h-32 text-2xl text-left p-3" id="langkahPenanganan" name="langkahPenanganan" required></textarea><br>
+
+            <label class="text-4xl text-white" for="gambar">Gambar:</label>
+            <input class="w-full h-7" type="file" id="gambar" name="gambar" required><br><br>
+
+            <input class="w-full h-12 bg-green-500 text-2xl text-white hover:bg-lime-500" type="submit" value="Create Article"> <br>
+            <a class="w-full h-12 bg-blue-600 text-2xl text-white hover:bg-sky-500" href="/">back</a>
+        </form>
+
+    </main> 
+</body>
+</html>

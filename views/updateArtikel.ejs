@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:display=swap');
+        *{
+            font-family: "Poppins", sans-serif;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        header{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            padding: 20px 100px;
+            background: #28667E;
+            display: flex;
+            justify-content: space-between;
+        }
+        img{
+            width: 300px;
+            height: 144px;
+        }
+        body{
+            background-color: #ECF4D6;
+        }
+        .navigation img{
+            display: flex;
+            width: 80px;
+            height: 80px;
+            border-radius: 100%;
+        }
+        a{
+            color: white;
+            border-radius: 10%;
+            text-decoration: none;
+            background-color: #28667E;
+            padding: 5px;
+            font-size: x-large;
+        }
+        a img{
+            width: 58px;
+            height: 51px;
+        }
+        .btnDiagnosa{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 253px;
+            height: 83px;
+            position: absolute;
+            right: 50px;
+            bottom: 50px;
+        }
+        /* Style untuk modal */
+        .modal {
+        display: none; /* Sembunyikan modal secara default */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4); /* Transparan hitam untuk latar belakang */
+        }
+
+        /* Style untuk konten modal */
+        .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        }
+
+        /* Style untuk tombol tutup (x) */
+        .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/uploads/img/Logo.png" alt="logo">
+        <nav class="flex gap-20 navigation">
+            <form action="/search" class="flex" method="post">
+                <input class="w-96 h-14 text-xl  rounded-2xl" type="text" name="keyword" placeholder="Masukkan kata kunci pencarian">
+                <button class="text-[#28667E] bg-white w-20 h-10 font-bold rounded-2xl" type="submit" hidden>Cari</button>
+            </form>
+            <img src="/uploads/img/profile.jpeg" alt="">
+        </nav>
+    </header>
+    <div style="height: 150px;"></div>
+    <!-- Button untuk membuka modal -->
+    
+    
+    <main class="mx-24 rounded-3xl p-20 text-white flex flex-row gap-8 justify-start items-start bg-[#28667E]" >
+        <div>
+            <!-- Modal -->
+            <img class="w-[32rem] h-[32rem] rounded-2xl object-cover mb-10" src="/uploads/img/<%= artikel.gambar %>" alt="">
+            <button class="bg-sky-600 text-2xl px-5 py-3 rounded-xl hover:bg-blue-300 ease-in delay-100" id="openModalBtn">Ubah Gambar</button>
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <form id="updateGambarForm" action="/artikel/<%= artikel.namaArtikel %>/update-gambar" method="post" enctype="multipart/form-data">
+                        <label for="gambar">Gambar:</label>
+                        <input type="file" id="gambar" name="gambar" required><br><br>
+                        <button type="submit">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="h-full justify-start flex-1 w-full">
+            <form class="flex flex-col items-start text-xl " action="/artikel/<%= artikel.namaArtikel %>/update" method="POST">
+                <h1 class="font-bold my-4 text-5xl">Update Artikel</h1>
+                <label for="namaArtikel">Nama Artikel:</label>
+                <input class="w-full p-2 rounded-xl text-black text-start" type="text" id="namaArtikel" name="namaArtikel" value="<%= artikel.namaArtikel %>" readonly>
+                <br>
+                <label for="penyebab">Penyebab:</label>
+                <input class="w-full p-2 rounded-xl text-black text-start" type="text" id="penyebab" name="penyebab" value="<%= artikel.penyebab %>">
+                <br>
+                <label for="ciri">Ciri:</label>
+                <input class="w-full p-2 rounded-xl h-24 text-black text-start" type="text" id="ciri" name="ciri" value="<%= artikel.ciri.join(', ') %>">
+                <br>
+                <label for="langkahPenanganan">Langkah Penanganan:</label>
+                <input class="w-full p-2 rounded-xl h-24 text-black text-start" type="text" id="langkahPenanganan" name="langkahPenanganan" value="<%= artikel.langkahPenanganan.join(', ') %>">
+                <br>
+                <div class="flex gap-10">
+                    <button class="w-48 justify-center text-4xl font-bold py-4 rounded-xl bg-green-800 hover:bg-lime-400 ease-in delay-100" type="submit">Update</button>
+                    <a class="w-48 justify-center text-4xl font-bold py-4 rounded-xl bg-rose-800 hover:bg-red-400 ease-in delay-100" href="/artikel/<%= artikel.namaArtikel %>">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+<script>
+// Dapatkan elemen modal
+var modal = document.getElementById("myModal");
+
+// Dapatkan tombol yang membuka modal
+var btn = document.getElementById("openModalBtn");
+
+// Dapatkan elemen <span> yang menutup modal
+var span = document.getElementsByClassName("close")[0];
+
+// Ketika pengguna mengklik tombol, buka modal
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// Ketika pengguna mengklik tombol (x), tutup modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// Ketika pengguna mengklik di luar modal, tutup modal
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+</script>
+</html>
