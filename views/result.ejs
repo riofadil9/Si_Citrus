@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:display=swap');
+        *{
+            font-family: "Poppins", sans-serif;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        header{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            padding: 20px 100px;
+            background: #28667E;
+            display: flex;
+            justify-content: space-between;
+        }
+        img{
+            width: 300px;
+            height: 144px;
+        }
+        body{
+            background-color: #ECF4D6;
+        }
+        .navigation img{
+            display: flex;
+            width: 80px;
+            height: 80px;
+            border-radius: 100%;
+        }
+        a{
+            color: white;
+            border-radius: 10%;
+            text-decoration: none;
+            background-color: #123b4b;
+            padding: 5px;
+            font-size: x-large;
+        }
+        a img{
+            width: 58px;
+            height: 51px;
+        }
+        .btnDiagnosa{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 253px;
+            height: 83px;
+            position: absolute;
+            right: 50px;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div style="height: 150px;"></div>
+    <img src="/uploads/<%= gambar %>" alt="/uploads/<%= gambar %>">
+    <h1><%= topPrediction.class %></h1>
+    <header>
+        <img src="/uploads/img/Logo.png" alt="logo">
+        <nav class="flex gap-20 navigation">
+            <form action="/search" class="flex" method="post">
+                <input class="w-96 h-14 text-xl  rounded-2xl" type="text" name="keyword" placeholder="Masukkan kata kunci pencarian">
+                <button class="text-[#28667E] bg-white w-20 h-10 font-bold rounded-2xl" type="submit" hidden>Cari</button>
+            </form>
+            <img src="/uploads/img/profile.jpeg" alt="">
+        </nav>
+    </header>
+    <a class="btnDiagnosa text-white fixed shadow-2xl" href="/diagnosa"><img src="/uploads/img/diagnosa.svg" alt=""> diagnosa</a>
+
+</body>

@@ -33,6 +33,12 @@ app.set('view engine','ejs')
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Ubah ke true jika Anda menggunakan HTTPS
+}));
 app.use('/', router);
 // Membuat objek upload dari multer dengan direktori penyimpanan file sementara 'uploads/'
 const Upload = multer.diskStorage({
@@ -315,7 +321,7 @@ app.post('/artikel', customUpload.single('gambar'), async (req, res) => {
 //     const imagePath = req.file.path;
 
 //     // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
-    // const newImagePath = `uploads/${req.file.originalname}`;
+//     const newImagePath = `uploads/${req.file.originalname}`;
 //     fs.renameSync(imagePath, newImagePath);
 
 //     // URL dari gambar yang diunggah
@@ -347,57 +353,118 @@ app.post('/artikel', customUpload.single('gambar'), async (req, res) => {
 //             console.error(e);
 //             res.status(500).send(`Something went wrong!`);
 //         });
+// });const Diagnosa = require('./path/to/diagnosaModel'); // Sesuaikan dengan path file model Diagnosa
+
+// app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
+//     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
+//     if (!req.file) {
+//         return res.status(400).send('No file uploaded.');
+//     }
+
+//     // Path dari file yang diunggah
+//     const imagePath = req.file.path;
+
+//     // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
+//     const newImagePath = `uploads/${req.file.originalname}`;
+//     fs.renameSync(imagePath, newImagePath);
+
+//     // URL dari gambar yang diunggah
+//     const imageUrl = `http://localhost:${port}/${newImagePath}`;
+
+//     // Mengklasifikasikan gambar menggunakan model machine learning
+//     return model
+//         .classify({
+//             imageUrl: imageUrl, // Gunakan URL file lokal sebagai URL gambar
+//         })
+//         .then(async (predictions) => {
+//             let responseMessage = ''; // Inisialisasi pesan respons
+//             const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
+        
+//             // Menyiapkan pesan respons berdasarkan prediksi
+//             if (topPrediction.class === "blackspot") {
+//                 responseMessage = `blackspot`;
+//             } else if (topPrediction.class === "Canker") {
+//                 responseMessage = `Canker`;
+//             } else {
+//                 responseMessage = `Tanaman Anda sehat`;
+//             }
+
+//             // Ambil informasi pengguna dari cookie
+//             const userData = JSON.parse(req.cookies.userData || '{}');
+//             const username = userData.username;
+
+//             // Simpan data diagnosa ke dalam database
+//             const diagnosa = new History({
+//                 username: username, // Ambil username dari cookie
+//                 gambar: imageUrl,
+//                 hasil: responseMessage
+//             });
+
+//             await diagnosa.save(); // Simpan data diagnosa
+
+//             // Mengirimkan pesan respons JSON
+//             res.json(responseMessage);
+//         })        
+//         .catch((e) => {
+//             // Menangani kesalahan dan mengirim respons 500 Internal Server Error
+//             console.error(e);
+//             res.status(500).send(`Something went wrong!`);
+//         });
 // });
+
 app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
     if (!req.file) {
         return res.status(400).send('No file uploaded.');
     }
 
-    // Mengambil nama file yang diunggah
-    const imageName = req.file.originalname;
-    
+    // Path dari file yang diunggah
+    const imagePath = req.file.path;
+
+    // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
+    const newImagePath = `uploads/${req.file.originalname}`;
+    fs.renameSync(imagePath, newImagePath);
+
     // URL dari gambar yang diunggah
-    const imageUrl = `http://localhost:${port}/uploads/${imageName}`;
+    const imageUrl = `http://localhost:${port}/${newImagePath}`;
 
-    try {
-        // Mengklasifikasikan gambar menggunakan model machine learning
-        const predictions = await model.classify({ imageUrl });
+    // Mengklasifikasikan gambar menggunakan model machine learning
+    return model
+        .classify({
+            imageUrl: imageUrl, // Gunakan URL file lokal sebagai URL gambar
+        })
+        .then(async (predictions) => {
+            // Ambil prediksi teratas
+            const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
 
-        // Menentukan hasil diagnosa berdasarkan prediksi
-        let hasil = '';
-        const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
-        if (topPrediction.class === "blackspot") {
-            hasil = 'blackspot';
-        } else if (topPrediction.class === "Canker") {
-            hasil = 'canker';
-        } else {
-            hasil = 'Tanaman Anda sehat';
-        }
+            // Ambil informasi pengguna dari cookie
+            const userData = JSON.parse(req.cookies.userData || '{}');
+            const username = userData.username;
 
-        // Simpan diagnosa ke database
-        const userDataCookie = req.cookies.userData;
-        if (!userDataCookie) {
-            return res.status(400).send('User data cookie not found.');
-        }
-        const userData = JSON.parse(userDataCookie);
-        const { username } = userData;
-        const diagnosa = new History({
-            username: username,
-            gambar: imageName,
-            hasil: hasil,
-            waktu: new Date()
+            if (!username) {
+                return res.status(400).send('Username not found in cookie.');
+            }
+
+            // Simpan data diagnosa ke dalam database
+            const diagnosa = new History({
+                username: username, // Ambil username dari cookie
+                gambar: req.file.originalname,
+                hasil: topPrediction.class
+            });
+
+            await diagnosa.save(); // Simpan data diagnosa
+
+            // Render halaman EJS dengan data yang diperlukan
+            res.render('result', { gambar: req.file.originalname, topPrediction: topPrediction });
+        })        
+        .catch((e) => {
+            // Menangani kesalahan dan mengirim respons 500 Internal Server Error
+            console.error(e);
+            res.status(500).send(`Something went wrong!`);
         });
-        await diagnosa.save();
-
-        // Mengirimkan pesan respons JSON
-        res.json(hasil);
-    } catch (e) {
-        // Menangani kesalahan dan mengirim respons 500 Internal Server Error
-        console.error(e);
-        res.status(500).send(`Something went wrong!`);
-    }
 });
+
+
 // Mendengarkan permintaan pada port yang telah ditentukan
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

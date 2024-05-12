@@ -222,6 +222,28 @@
             // const imgView = document.getElementById("")
             // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
             // Fungsi async yang akan mengirim formulir dan menampilkan output JSON
+            
+            // async function submitForm(event) {
+            //     event.preventDefault(); // Mencegah pengiriman formulir secara default
+
+            //     // Mengirim formulir menggunakan Fetch API
+            //     const formData = new FormData(this);
+            //     const response = await fetch(this.action, {
+            //         method: this.method,
+            //         body: formData
+            //     });
+
+            //     // Mendapatkan hasil respons dalam bentuk JSON
+            //     const result = await response.json();
+
+            //     // Menampilkan hasil respons di dalam elemen output
+            //     const outputElement = document.getElementById("output");
+            //     outputElement.innerHTML = JSON.stringify(result, null, 2);
+
+            //     // Setelah pengiriman formulir berhasil, sembunyikan form
+            //     formContainer.style.display = "none";
+            //     outputDiv.style.display = "block"; // Tampilkan kembali div output
+            // }
             async function submitForm(event) {
                 event.preventDefault(); // Mencegah pengiriman formulir secara default
 
@@ -232,17 +254,18 @@
                     body: formData
                 });
 
-                // Mendapatkan hasil respons dalam bentuk JSON
-                const result = await response.json();
+                // Mendapatkan hasil respons sebagai teks
+                const resultHTML = await response.text();
 
                 // Menampilkan hasil respons di dalam elemen output
                 const outputElement = document.getElementById("output");
-                outputElement.innerHTML = JSON.stringify(result, null, 2);
+                outputElement.innerHTML = resultHTML;
 
                 // Setelah pengiriman formulir berhasil, sembunyikan form
                 formContainer.style.display = "none";
                 outputDiv.style.display = "block"; // Tampilkan kembali div output
             }
+
             // function previewImage(event) {
             //     var input = event.target;
             //     var preview = document.getElementById('preview');
