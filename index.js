@@ -1,16 +1,22 @@
 const express = require("express"); // Mengimpor modul Express.js untuk membuat aplikasi web
 const session = require('express-session');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const teachableMachine = require("@sashido/teachablemachine-node"); // Mengimpor modul untuk menggunakan model machine learning dari Teachable Machine
 const multer = require('multer'); // Mengimpor modul multer untuk menangani unggahan file
 const fs = require('fs'); // Mengimpor modul fs untuk mengakses sistem file
 const path = require("path");
 const mongoose = require('mongoose');
 const Artikel = require('./models/Artikel');
+const User = require('./models/user')
+const History = require('./models/diagnosa');
 const router = express.Router();
+
 // Membuat objek model dari kelas teachableMachine dengan model URL yang diberikan
 const model = new teachableMachine({
     modelUrl: "https://teachablemachine.withgoogle.com/models/3IPtlX6kC/",
 });
+
 // koneksi mongoDB
 mongoose.connect('mongodb://127.0.0.1:27017/SiCitrus',{
     useNewUrlParser: true,
@@ -22,14 +28,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/SiCitrus',{
 
 // Membuat aplikasi Express
 const app = express();
-// Menentukan port yang akan digunakan, jika tidak ada di environment variable, maka gunakan port 5000
 const port = process.env.PORT || 5000;
 app.set('view engine','ejs')
-// Menggunakan middleware untuk mengurai body permintaan yang masuk sebagai JSON
 app.use(express.json());
-// Menggunakan middleware untuk mengurai body permintaan yang masuk sebagai URL-encoded data
 app.use(express.urlencoded({extended: true}));
-
+app.use(cookieParser());
 app.use('/', router);
 // Membuat objek upload dari multer dengan direktori penyimpanan file sementara 'uploads/'
 const Upload = multer.diskStorage({
@@ -62,10 +65,51 @@ app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'form')));
 // Menangani permintaan GET pada akar URL, menampilkan form unggah gambar
 
+// app.get("/", async (req, res) => {
+//     try {
+//         const userData = req.cookies.username;
+//         // if (!userData) {
+//         //     return res.redirect("/login");
+//         // }
+
+//         // // Parse data pengguna dari cookie
+//         // const { username, email, akses, gambar } = JSON.parse(userData);
+
+//         // Misalnya, ambil semua artikel dari database
+//         // const artikel = await Artikel.find();
+//         // res.render('beranda', { artikel });
+//         res.send("test")
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Terjadi kesalahan beranda');
+//     }
+// });
 app.get("/", async (req, res) => {
     try {
-        const artikel = await Artikel.find();
-        res.render('beranda', { artikel });
+      const userData = req.cookies.userData;
+      if (!userData) {
+        return res.redirect("/login");
+      }
+  
+      const { username, email, akses, gambar } = JSON.parse(userData);
+  
+      const artikel = await Artikel.find();
+      res.render("beranda", { 
+        artikel: artikel,
+        username: username, 
+        email: email, 
+        akses: akses, 
+        gambar: gambar 
+        });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send(`Error: ${err.message}`);
+    }
+  });
+app.get("/login", async (req, res) => {
+    try {
+        const akun = await User.find();
+        res.render('login', { akun });
     } catch (err) {
         console.error(err);
         res.status(500).send('Terjadi kesalahan');
@@ -85,7 +129,28 @@ app.get("/artikel/:namaArtikel", async (req, res) => {
     }
   });
 
+app.get("/akun", async (req, res) => {
+try {
+    const userData = req.cookies.userData;
+    if (!userData) {
+    return res.redirect("/login");
+    }
 
+    const { username, email, akses, gambar } = JSON.parse(userData);
+
+    // const artikel = await Artikel.find();
+    res.render("akun", {
+    username: username, 
+    email: email, 
+    akses: akses, 
+    gambar: gambar,
+    userData: JSON.parse(userData)
+    });
+} catch (err) {
+    console.error(err);
+    res.status(500).send(`Error: ${err.message}`);
+}
+});
 
 router.get('/artikel/:namaArtikel/update', async (req, res) => {
     try {
@@ -98,6 +163,36 @@ router.get('/artikel/:namaArtikel/update', async (req, res) => {
         res.status(500).send(error);
     }
   });
+
+// Endpoint untuk login
+app.post('/login', async (req, res) => {
+    const { username, pass } = req.body;
+    try {
+        // Cari user di database berdasarkan username
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).send('Username tidak ditemukan');
+        }
+        
+        // Pastikan 'pass' ada di 'user' sebelum mencoba untuk mencocokkan password
+        if (!user.pass || !user.pass.includes(pass)) {
+            return res.status(401).send('Password salah');
+        }
+
+        // Set cookie dengan nama username
+        res.cookie('userData', JSON.stringify({
+            username: user.username,
+            email: user.email,
+            akses: user.akses,
+            gambar: user.gambar
+        }));
+        res.redirect('/');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 
 router.post('/artikel/:namaArtikel/update', async (req, res) => {
     try {
@@ -253,7 +348,67 @@ app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
             res.status(500).send(`Something went wrong!`);
         });
 });
+app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
+    // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
 
+    // Mengambil nama file yang diunggah
+    const imageName = req.file.originalname;
+    
+    // URL dari gambar yang diunggah
+    const imageUrl = `http://localhost:${port}/uploads/${imageName}`;
+
+    try {
+        // Mengklasifikasikan gambar menggunakan model machine learning
+        const predictions = await model.classify({ imageUrl });
+
+        // Menentukan hasil diagnosa berdasarkan prediksi
+        let hasil = '';
+        const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
+        if (topPrediction.class === "blackspot") {
+            hasil = 'blackspot';
+        } else if (topPrediction.class === "Canker") {
+            hasil = 'canker';
+        } else {
+            hasil = 'Tanaman Anda sehat';
+        }
+
+        // Simpan diagnosa ke database
+        const userDataCookie = req.cookies.userData;
+        if (!userDataCookie) {
+            return res.status(400).send('User data cookie not found.');
+        }
+        const userData = JSON.parse(userDataCookie);
+        const { username } = userData;
+        const diagnosa = new History({
+            username: username,
+            gambar: imageName,
+            hasil: hasil,
+         s   waktu: new Date()
+        });
+        await diagnosa.save();
+        const username = req.cookies.username; // assuming the username is stored in a cookie
+
+        // Menyimpan history ke MongoDB
+        const historyRecord = new History({
+            timestamp: new Date(),
+            imageUrl: imageUrl,
+            classification: topPrediction.class,
+            score: topPrediction.score,
+            message: responseMessage,
+            username: username,
+            imgUrl: imageUrl // assuming imgUrl is the same as imageUrl
+        });
+        // Mengirimkan pesan respons JSON
+        res.json(hasil);
+    } catch (e) {
+        // Menangani kesalahan dan mengirim respons 500 Internal Server Error
+        console.error(e);
+        res.status(500).send(`Something went wrong!`);
+    }
+});
 // Mendengarkan permintaan pada port yang telah ditentukan
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
