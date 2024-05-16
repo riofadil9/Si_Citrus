@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-200 flex justify-center h-screen">
+    <div class="flex flex-col lg:flex-row w-full">
+        <div class="bg-cover bg-center lg:w-1/2" style="background-image: url('/uploads/img/unsplash_4XoCxdMnWFg.jpg');">
+        </div>
+        <div class="flex flex-col items-center justify-center bg-[#2D9596] p-8 rounded-lg shadow-md w-full lg:w-1/2" style="background-color: #2D9596;">
+            <img class="w-1/2 h-auto" src="/uploads/img/Logo.png" alt="">
+            <form class="flex flex-col bg-[#28667E] gap-3 px-6 py-8 text-xl rounded-xl w-4/5 h-1/2 justify-center items-center text-white" style="background-color: #28667E;" action="/login" method="POST" onsubmit="return validateForm()">
+                <div class="flex flex-col flex-1 w-full gap-3">
+                    <label for="username">Username</label>
+                    <input class="h-4/5 rounded-xl" type="text" name="username">
+                </div>
+                <div class="flex flex-col flex-1 w-full gap-3">
+                    <label for="email">Email</label>
+                    <input class="h-4/5 rounded-xl" type="text" name="email">
+                </div>
+                <div class="flex flex-col flex-1 w-full gap-3">
+                    <label for="password">Password</label>
+                    <input class="h-4/5 rounded-xl" type="password" name="password">
+                </div>
+                <div class="flex flex-col flex-1 w-full gap-3">
+                    <label for="password1">Ulangi Password</label>
+                    <input class="h-4/5 rounded-xl" type="text" name="password1">
+                </div>
+                <div class="flex flex-col flex-1 w-full justify-center items-center">
+                    <button class="rounded-xl bg-[#D9D9D9] text-[#28667E] font-bold px-6 py-4">Sign Up</button>
+                </div>
+            </form>
+            <p class="text-sky-700">Sign Up</p>
+        </div>
+    </div>
+</body>
+<script>
+    function validateForm() {
+        let valid = true;
+
+        // Clear previous errors
+        document.getElementById('usernameError').textContent = '';
+        document.getElementById('emailError').textContent = '';
+        document.getElementById('passwordError').textContent = '';
+        document.getElementById('password1Error').textContent = '';
+
+        // Get form values
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const password1 = document.getElementById('password1').value.trim();
+
+        // Username validation
+        if (username === '') {
+            document.getElementById('usernameError').textContent = 'Username is required';
+            valid = false;
+        }
+
+        // Email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email === '') {
+            document.getElementById('emailError').textContent = 'Email is required';
+            valid = false;
+        } else if (!emailPattern.test(email)) {
+            document.getElementById('emailError').textContent = 'Invalid email format';
+            valid = false;
+        }
+
+        // Password validation
+        if (password === '') {
+            document.getElementById('passwordError').textContent = 'Password is required';
+            valid = false;
+        } else if (password.length < 6) {
+            document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+            valid = false;
+        }
+
+        // Confirm password validation
+        if (password1 === '') {
+            document.getElementById('password1Error').textContent = 'Please confirm your password';
+            valid = false;
+        } else if (password !== password1) {
+            document.getElementById('password1Error').textContent = 'Passwords do not match';
+            valid = false;
+        }
+
+        return valid;
+    }
+</script>
+</html>

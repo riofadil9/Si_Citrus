@@ -9,11 +9,7 @@ const diagnosaSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    hasil: {
-        type: String,
-        required: true
-        
-    },
+    hasil: { type: mongoose.Schema.Types.Mixed, required: true },
     waktu: {
         type: Date,
         default: Date.now

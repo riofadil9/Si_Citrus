@@ -121,7 +121,14 @@ app.get("/login", async (req, res) => {
         res.status(500).send('Terjadi kesalahan');
     }
 });
-
+app.get("/signup", async (req, res) => {
+    try {
+        res.render('signup');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Terjadi kesalahan');
+    }
+});
 app.get("/artikel/:namaArtikel", async (req, res) => {
     try {
       const artikel = await Artikel.findOne({ namaArtikel: req.params.namaArtikel }); // Mencari artikel berdasarkan namaArtikel
@@ -256,37 +263,104 @@ router.post('/search', async (req, res) => {
 app.get('/artikel/:namaArtikel/update-gambar',customUpload.single('gambar'), function(req, res) {
     // Render view (template EJS) dengan data artikel jika diperlukan
     res.render('updateArtikel', { artikel: { namaArtikel: req.params.namaArtikel } });
-    });
-    app.post('/artikel/:namaArtikel/update-gambar', upload.single('gambar'), async function(req, res) {
-        try {
-          // Simpan URL gambar baru di variabel
-          const gambarBaru = req.file.filename; // Ubah ke URL penyimpanan cloud jika diperlukan
-      
-          // Dapatkan nama artikel dari parameter URL
-          const namaArtikel = req.params.namaArtikel;
-      
-          // Perbarui gambar artikel dalam MongoDB
-          const artikel = await Artikel.findOneAndUpdate(
-            { namaArtikel: namaArtikel },
-            { gambar: gambarBaru }
-          );
-      
-          // Jika artikel ditemukan dan gambar berhasil diperbarui
-          if (artikel) {
-            const artikel = await Artikel.findOne({ namaArtikel: req.params.namaArtikel });
-            // res.send('Gambar artikel berhasil diperbarui');
-            res.render('updateArtikel', { artikel });
-          } else {
-            res.status(404).send('Artikel tidak ditemukan');
-          }
-        } catch (err) {
-          console.error('Error:', err);
-          res.status(500).send('Terjadi kesalahan dalam memperbarui gambar artikel');
-        }
-      });
-app.get("/diagnosa", (req, res) => {
-    res.render('diagnosa');
 });
+app.post('/artikel/:namaArtikel/update-gambar', upload.single('gambar'), async function(req, res) {
+try {
+    // Simpan URL gambar baru di variabel
+    const gambarBaru = req.file.filename; // Ubah ke URL penyimpanan cloud jika diperlukan
+
+    // Dapatkan nama artikel dari parameter URL
+    const namaArtikel = req.params.namaArtikel;
+
+    // Perbarui gambar artikel dalam MongoDB
+    const artikel = await Artikel.findOneAndUpdate(
+    { namaArtikel: namaArtikel },
+    { gambar: gambarBaru }
+    );
+
+    // Jika artikel ditemukan dan gambar berhasil diperbarui
+    if (artikel) {
+    const artikel = await Artikel.findOne({ namaArtikel: req.params.namaArtikel });
+    // res.send('Gambar artikel berhasil diperbarui');
+    res.render('updateArtikel', { artikel });
+    } else {
+    res.status(404).send('Artikel tidak ditemukan');
+    }
+} catch (err) {
+    console.error('Error:', err);
+    res.status(500).send('Terjadi kesalahan dalam memperbarui gambar artikel');
+}
+});
+app.get("/diagnosa", async (req, res) => {
+    // Ambil username dari cookie userData
+    const userData = JSON.parse(req.cookies.userData || '{}');
+    const username = userData.username;
+
+    if (!username) {
+        return res.status(400).send('Username not found in cookie.');
+    }
+
+    try {
+        // Cari history diagnosa berdasarkan username
+        // const history = await History.find({ username: username }).exec();
+        const history = await History.find({ username: username });
+        // Kirim history sebagai respons
+        res.render('diagnosa', { history: history, gambar: "Logo.png" , topPrediction: {class: "isi terlebih dahulu", score: 0} });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// app.post('/history', async (req, res) => {
+//     try {
+//         const hasil = req.body.hasil; // Mengambil nilai dari input tersembunyi "hasil"
+//         const waktu = req.body.waktu; // Mengambil nilai dari input tersembunyi "waktu"
+//         const history = await History.find(
+//                 { hasil: hasil },
+//                 { waktu: waktu }
+//         );
+//         // const history = await History.find(); // Ambil semua data riwayat
+//         res.render('result', { item: history }); // Render halaman EJS dengan data riwayat
+//     } catch (error) {
+//         console.error('Error fetching history:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+// app.post('/history', async (req, res) => {
+//     try {
+//         const id = req.body.id; // Extract the id from the request body
+//         const diagnosa = await History.findOne({ _id: id }); // Query the History model using the id
+//         if (diagnosa) {
+//             res.render('result', { item: diagnosa }); // Render the result page with the retrieved data
+//         } else {
+//             res.status(404).send('History not found');
+//         } // Render the result page with the filtered data
+//     } catch (error) {
+//         console.error('Error fetching history:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+//   });
+app.post('/history', async (req, res) => {
+    try {
+        const id = req.body.id; // Ekstrak id dari body permintaan
+        console.log(`Received request for history with ID: ${id}`);
+        
+        const diagnosa = await History.findOne({ _id: id }); // Query model History menggunakan id
+        if (diagnosa) {
+            console.log('History found:', diagnosa);
+            res.render('result', { item: diagnosa }); // Render halaman hasil dengan data yang diperoleh
+        } else {
+            console.log('History not found for ID:', id);
+            res.status(404).send('History not found');
+        }
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 
 app.get('/createArtikel', (req, res) => {
     res.render('createArtikel');
@@ -449,13 +523,13 @@ app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
             const diagnosa = new History({
                 username: username, // Ambil username dari cookie
                 gambar: req.file.originalname,
-                hasil: topPrediction.class
+                hasil: topPrediction,
             });
 
             await diagnosa.save(); // Simpan data diagnosa
 
             // Render halaman EJS dengan data yang diperlukan
-            res.render('result', { gambar: req.file.originalname, topPrediction: topPrediction });
+            res.render('result', { item: diagnosa });
         })        
         .catch((e) => {
             // Menangani kesalahan dan mengirim respons 500 Internal Server Error

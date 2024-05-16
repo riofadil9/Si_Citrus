@@ -66,8 +66,10 @@
 </head>
 <body>
     <div style="height: 150px;"></div>
-    <img src="/uploads/img/<%= gambar %>" alt="/uploads/img/<%= gambar %>">
+    <img src="/uploads/img/<%= userData.gambar %>" alt="/uploads/img/<%= userData.gambar %>">
     <h1><%= userData.username %></h1>
+    <h1><%= userData.email %></h1>
+    <h1><%= userData.pass %></h1>
     <header>
         <img src="/uploads/img/Logo.png" alt="logo">
         <nav class="flex gap-20 navigation">

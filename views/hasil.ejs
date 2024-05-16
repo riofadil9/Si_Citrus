@@ -8,6 +8,9 @@
 <body>
     <h1>Classification Result</h1>
     <img src="<%= imageUrl %>" alt="Uploaded Image">
+    <!-- Jika imageUrl tidak ada, gunakan gambar default -->
+    <img src="<%= imageUrl || '/uploads/img/Logo.png' %>" alt="Uploaded Image" onerror="this.onerror=null; this.src='/uploads/img/Logo.png'">
+
     <h2>Top Prediction: <%= topPrediction.class %></h2>
     <p>Score: <%= topPrediction.score %></p>
 </body>

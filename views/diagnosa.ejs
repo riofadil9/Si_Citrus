@@ -1,10 +1,27 @@
+<% function formatDate(dateString) { %>
+    <% const date = new Date(dateString); %>
+    <% const options = { year: 'numeric', month: '2-digit', day: '2-digit' }; %>
+    <%= date.toLocaleDateString('en-US', options) %>
+<% } %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Classification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Tailwind custom scrollbar styling */
+        .scrollbar-custom::-webkit-scrollbar {
+          width: 8px; /* Width of the scrollbar */
+        }
+        .scrollbar-custom::-webkit-scrollbar-track {
+          background: transparent; /* Track color */
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+          background-color: #949494; /* Thumb color */
+          border-radius: 4px; /* Rounded corners */
+        }
         @import url('https://fonts.googleapis.com/css2?family=Poppins:display=swap');
         *{
             font-family: "Poppins", sans-serif;
@@ -37,7 +54,7 @@
             width: 240px;
             height: 240px;
         }
-        .container button{
+        .containe button{
             font-size: x-large;
             padding: 10px 25px;
             border-radius: 20px;
@@ -71,7 +88,7 @@
             height: 80px;
             border-radius: 100%;
         }
-        .container{
+        .containe{
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -111,6 +128,9 @@
             font-size: x-large;
             text-align: left ;
             align-items: start;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .sidebar{
             display: flex;
@@ -129,7 +149,7 @@
             box-sizing: border-box;
         }
         .sidebar button{
-            margin-top: 65vh;
+            /* margin-top: 65vh; */
             width: 227px;
             height: 58px;
             border: none;
@@ -138,8 +158,9 @@
             font-weight: 300;
             color: white;
             background-color: #2D9596;
+            margin-top: 20px;
         }
-        .sidebar a{
+        .sidebar a #lakukanDiagnosa{
             display: flex;
             align-items: center;
             width: 227px;
@@ -151,14 +172,14 @@
             font-weight: 300;
             text-decoration: none;
         }
-        .flex{
+        /* .flex{
             display: flex;
             flex-direction: row;
             justify-content: left;
-            /* align-items: center; */
+            align-items: center;
             gap: 20px;
             min-height: 80vh;
-        }
+        } */
         #dropArea{
             background-position: center;
             background-size: cover;
@@ -173,35 +194,89 @@
             <img src="/uploads/img/profile.jpeg" alt="">
         </nav>
     </header>
-    <div style="height: 150px;"></div>
-    <div class="flex">
-        <div class="sidebar">
-            <button id="lakukanDiagnosa">Tambah Gambar</button><br>
-            <a href="/">Artikel</a>
-        </div>
-        <div class="container">
-            <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
-                <a id="closeForm" href="#">x</a>
-                <label for="fileInput" id="dropArea">
-                    <input type="file" name="imageFile" id="fileInput" accept="image/*" style="display: none;">
-                    <div id="img-view">
-                        <img id="preview" src="/uploads/img/camera_enhance.png" alt="" srcset=""><br>
-                        <p>Tambahkan gambar yang ingin diolah</p>
-                        <span>Tambah gambar dengan format  .jpg .jpng .png <br> Pastikan gambar yang ditambahkan gambar daun jeruk <br> disarankan background berwarna putih untuk meningkatkan akurasi</span>
-                    </div>
+    <div class="flex flex-col h-screen">
+        <div class="flex-none" style="height: 150px;"></div>
+        <div class="flex flex-1 w-full">
+            <div class="sidebar flex-none w-72">
+                <!-- <h1 class="mt-32">HI</h1> -->
+                <div class="flex-col gap-10 h-[50rem] px-4 overflow-y-scroll scrollbar-custom">
+                    <% if (history.length === 0) { %>
+                        <p>No history available.</p>
+                    <% } else { %>
+                        <% history.forEach((item) => { %>
+                            <form class="history-form" action="/history" method="post">
+                                <input type="hidden" name="id" value="<%= item._id %>">
+                                <button class="font-bold" type="submit">
+                                    Hasil: <%= item.hasil.class %> <br>
+                                    Waktu: <%= new Date(item.waktu).toLocaleString() %>
+                                </button>
+                            </form>
+                        <% }); %>
+                    <% } %>                     
+                </div>
+                <button class="mt-2" id="lakukanDiagnosa" name="lakukanDiagnosa">Tambah Gambar</button><br>
+                <a href="/">Artikel</a>
+            </div>
+            <div class="containe">
+                <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
+                    <a id="closeForm" href="#">x</a>
+                    <label for="fileInput" id="dropArea">
+                        <input type="file" name="imageFile" id="fileInput" accept="image/*" style="display: none;">
+                        <div class="flex flex-col justify-center items-center" id="img-view">
+                            <img id="preview" src="/uploads/img/camera_enhance.png" alt="" srcset=""><br>
+                            <p>Tambahkan gambar yang ingin diolah</p>
+                            <span>Tambah gambar dengan format  .jpg .jpng .png <br> Pastikan gambar yang ditambahkan gambar daun jeruk <br> disarankan background berwarna putih untuk meningkatkan akurasi</span>
+                        </div>
                     <!-- <label for="fileInput" id="label">Pilih gambar yang akan di diagnosa</label><br>
-                    <label for="fileInput" id="label1">Drag & drop or click here to upload</label><br> -->
-                </label>
-                <button type="submit">Tambah Gambar</button>
-            </form>
+                        <label for="fileInput" id="label1">Drag & drop or click here to upload</label><br> -->
+                    </label>
+                    <button type="submit">Tambah Gambar</button>
+                </form>
+            </div>
+            <div id="output"></div>
         </div>
-        <div id="output"></div>
-
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const formContainer = document.querySelector(".containe");
+            document.querySelectorAll('.history-form').forEach(form => {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault(); // Prevent the default form submission
+    
+                    const formData = new FormData(form);
+                    const id = formData.get('id');
+    
+                    try {
+                        const response = await fetch('/history', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id }),
+                        });
+    
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+    
+                        const data = await response.text(); // Get the response text
+                        const outputElement = document.getElementById("output");
+                        outputElement.innerHTML = data; // Update the div with the response
+                        outputElement.style.display = "flex";
+                        outputElement.style.flexDirection = "column";
+                        formContainer.style.display = "none"
+                    } catch (error) {
+                        console.error('There was a problem with the fetch operation:', error);
+                    }
+                });
+            });
+        });
+    </script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const lakukanDiagnosaButton = document.getElementById("lakukanDiagnosa");
-            const formContainer = document.querySelector(".container");
+            const formContainer = document.querySelector(".containe");
             const outputDiv = document.getElementById("output");
             const dropArea = document.getElementById('dropArea');
             const imgView = document.getElementById("img-view");
@@ -218,6 +293,7 @@
             });
 
             const form = document.getElementById("uploadForm");
+            const history = document.getElementById("history");
             const fileInput = document.getElementById("fileInput");
             // const imgView = document.getElementById("")
             // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
@@ -244,26 +320,25 @@
             //     formContainer.style.display = "none";
             //     outputDiv.style.display = "block"; // Tampilkan kembali div output
             // }
+            
             async function submitForm(event) {
                 event.preventDefault(); // Mencegah pengiriman formulir secara default
 
-                // Mengirim formulir menggunakan Fetch API
                 const formData = new FormData(this);
                 const response = await fetch(this.action, {
                     method: this.method,
                     body: formData
                 });
 
-                // Mendapatkan hasil respons sebagai teks
                 const resultHTML = await response.text();
 
-                // Menampilkan hasil respons di dalam elemen output
                 const outputElement = document.getElementById("output");
                 outputElement.innerHTML = resultHTML;
 
-                // Setelah pengiriman formulir berhasil, sembunyikan form
-                formContainer.style.display = "none";
-                outputDiv.style.display = "block"; // Tampilkan kembali div output
+                // Opsional sembunyikan form atau tampilkan hanya output
+                formContainer.style.display = "none"; // Sembunyikan form setelah pengiriman
+                outputElement.style.display = "flex";
+                outputElement.style.flexDirection = "column"; // Tampilkan elemen output
             }
 
             // function previewImage(event) {
@@ -303,6 +378,9 @@
                 reader.readAsDataURL(file);
             });
             form.addEventListener("submit", submitForm);
+            // document.querySelectorAll('.history-form').forEach(form => {
+            //     form.addEventListener('submit', submitForm);
+            // });
             // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropArea.addEventListener(eventName, preventDefaults, false);
@@ -343,8 +421,25 @@
             fileInput.addEventListener('change', function() {
                 previewFile(fileInput.files[0]);
             });
+            
         });
 
     </script>
+    <script>
+        function fetchHistory() {
+            fetch('/history')
+                .then(response => response.text()) // Mengambil teks dari respon
+                .then(html => {
+                    const outputDiv = document.getElementById('output');
+                    outputDiv.innerHTML = html; // Memasukkan HTML ke dalam output
+                })
+                .catch(error => {
+                    console.error('Error fetching history:', error);
+                });
+        }
+    
+        window.onload = fetchHistory;
+    </script>
+    
 </body>
 </html>
