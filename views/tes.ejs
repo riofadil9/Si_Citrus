@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time History</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Real-time History</h1>
+    <ul id="history"></ul>
+    <form id="historyForm">
+        <input type="text" id="message" placeholder="Enter message" required>
+        <button type="submit">Add</button>
+    </form>
+    <script>
+        const socket = io();
+
+        // Fetch initial history
+        fetch('/history')
+            .then(response => response.json())
+            .then(data => {
+                const historyList = document.getElementById('history');
+                data.forEach(entry => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${entry.message} - ${new Date(entry.timestamp).toLocaleString()}`;
+                    historyList.appendChild(listItem);
+                });
+            });
+
+        // Listen for new history entries
+        socket.on('new_history', (data) => {
+            const historyList = document.getElementById('history');
+            const listItem = document.createElement('li');
+            listItem.textContent = `${data.message} - ${new Date(data.timestamp).toLocaleString()}`;
+            historyList.appendChild(listItem);
+        });
+
+        // Handle form submission
+        document.getElementById('historyForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const message = document.getElementById('message').value;
+            fetch('/history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('message').value = '';
+            });
+        });
+    </script>
+</body>
+</html>

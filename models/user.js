@@ -9,14 +9,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    pass: [{
+    pass: {
         type: String,
         required: true
-    }],
-    akses: [{
+    },
+    akses: {
         type: String,
         required: true
-    }],
+    },
     gambar: {
         type: String,
         required: true

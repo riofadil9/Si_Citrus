@@ -40,18 +40,6 @@
             height: 80px;
             border-radius: 100%;
         }
-        a{
-            color: white;
-            border-radius: 10%;
-            text-decoration: none;
-            background-color: #123b4b;
-            padding: 5px;
-            font-size: x-large;
-        }
-        a img{
-            width: 58px;
-            height: 51px;
-        }
         .btnDiagnosa{
             display: flex;
             justify-content: center;
@@ -62,24 +50,133 @@
             right: 50px;
             bottom: 50px;
         }
+        .modal {
+        display: none; /* Sembunyikan modal secara default */
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4); /* Transparan hitam untuk latar belakang */
+        }
+
+        /* Style untuk konten modal */
+        .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        }
+
+        /* Style untuk tombol tutup (x) */
+        .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div style="height: 150px;"></div>
-    <img src="/uploads/img/<%= userData.gambar %>" alt="/uploads/img/<%= userData.gambar %>">
-    <h1><%= userData.username %></h1>
-    <h1><%= userData.email %></h1>
-    <h1><%= userData.pass %></h1>
+    <div class="flex justify-start">
+        <div class="flex flex-col">
+            <button class="mb-32 text-white text-2xl " id="openModalBtn">
+                <img class="ml-64 w-64 mb-5 h-64 rounded-full" src="/uploads/img/<%= userData.gambar %>" alt="/uploads/img/<%= userData.gambar %>">
+
+            </button>
+        </div>
+    </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="updateGambarForm" action="/akun/update-gambar" method="post" enctype="multipart/form-data">
+                <label for="gambar">Gambar:</label>
+                <input type="file" id="gambar" name="gambar" required><br><br>
+                <button type="submit">Simpan</button>
+            </form>
+        </div>
+    </div>
+    <form id="myForm" class="flex flex-col text-4xl gap-5 justify-start items-start ml-64" action="/ubah-akun" method="post">
+        <input type="hidden" name="id" value="<%= userData.id %>">
+        <div class="flex flex-1 w-full">
+            <label class="w-56 text-left mr-36" for="username">Username</label>
+            <div class="flex-1 flex justify-start">
+                <input class="border-2 w-1/2 border-black py-3 px-2 text-left rounded-lg" type="text" name="username" value="<%= userData.username %>" readonly>
+            </div>
+        </div>
+        <div class="flex flex-1 w-full">
+            <label class="w-56 text-left mr-36" for="email">Email</label>
+            <div class="flex-1 flex justify-start">
+                <input class="w-1/2 border-2 border-black py-3 mr-0.5 px-2 text-left rounded-lg" type="text" name="email" value="<%= userData.email %>" readonly>
+            </div>
+        </div>
+        <div class="flex w-full">
+            <label class="w-56 text-left mr-36" for="password">Password</label>
+            <div class="flex flex-1 justify-start">
+                <input class="border-2 w-1/2 border-black py-3 px-2 text-left rounded-lg" type="password" name="password" value="<%= userData.pass %>" readonly>
+            </div>
+        </div>
+    </form>
+    
     <header>
-        <img src="/uploads/img/Logo.png" alt="logo">
+        <a href="/"><img src="/uploads/img/Logo.png" alt="logo"></a>
         <nav class="flex gap-20 navigation">
-            <form action="/search" class="flex" method="post">
+            <!-- <form action="/search" class="flex" method="post">
                 <input class="w-96 h-14 text-xl  rounded-2xl" type="text" name="keyword" placeholder="Masukkan kata kunci pencarian">
                 <button class="text-[#28667E] bg-white w-20 h-10 font-bold rounded-2xl" type="submit" hidden>Cari</button>
             </form>
-            <img src="/uploads/img/profile.jpeg" alt="">
+            <img src="/uploads/img/profile.jpeg" alt=""> -->
         </nav>
     </header>
-    <a class="btnDiagnosa text-white fixed shadow-2xl" href="/diagnosa"><img src="/uploads/img/diagnosa.svg" alt=""> diagnosa</a>
+    <!-- <a class="btnDiagnosa text-white fixed shadow-2xl" href="/diagnosa"><img src="/uploads/img/diagnosa.svg" alt=""> diagnosa</a> -->
+    <form action="/logout">
+        <button class="btnDiagnosa bg-[#5A2E1B] font-bold text-2xl w-72 mr-72 text-white rounded-xl fixed shadow-2xl hover:bg-[#d1ae61] transition duration-300 ease-in-out">logout</button>
+    </form>
+    <a href="/ubah-akun" class="btnDiagnosa bg-[#28667E] w-52 text-2xl rounded-xl text-white font-bold hover:bg-sky-500 transition duration-300 ease-in-out">Ubah</a>
 
 </body>
+<script>
+    // JavaScript untuk mengirim form ketika tombol di luar form ditekan
+    document.getElementById('submitButton').addEventListener('click', function() {
+        document.getElementById('myForm').submit();
+    });
+</script>
+<script>
+    // Dapatkan elemen modal
+var modal = document.getElementById("myModal");
+
+// Dapatkan tombol yang membuka modal
+var btn = document.getElementById("openModalBtn");
+
+// Dapatkan elemen <span> yang menutup modal
+var span = document.getElementsByClassName("close")[0];
+
+// Ketika pengguna mengklik tombol, buka modal
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// Ketika pengguna mengklik tombol (x), tutup modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// Ketika pengguna mengklik di luar modal, tutup modal
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+</script>

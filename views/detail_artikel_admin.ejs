@@ -56,7 +56,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 253px;
+            width: 171px;
             height: 83px;
             position: absolute;
             right: 50px;
@@ -77,10 +77,12 @@
             <img src="/uploads/img/profile.jpeg" alt="">
         </nav>
     </header>
-    <a class="btnDiagnosa text-white fixed" href="/diagnosa"><img src="/uploads/img/diagnosa.svg" alt=""> diagnosa</a>
+    <!-- <a class="btnDiagnosa text-white fixed" href="/diagnosa"><img src="/uploads/img/diagnosa.svg" alt=""> diagnosa</a> -->
     <div class="bg-[url('/uploads/img/unsplash_4XoCxdMnWFg.jpg')] bg-cover bg-right flex h-5/6 w-80 rounded-lg justify-center items-center content-center left-10 bottom-14 fixed"></div>
+    <a class="btnDiagnosa text-white text-3xl fixed hover:bg-sky-500 duration-300 ease-in-out" href="/artikel/<%= artikel.namaArtikel %>/update"> <img class="mr-3" src="/uploads/img/Frame 3.png" alt="">Edit</a>
     <div style="height: 150px;"></div>
     <main class="px-8 flex flex-col items-start gap-8 ml-96 mb-14">
+        <img class="w-[64rem] h-[32rem] rounded-2xl object-cover" src="/uploads/img/<%= artikel.gambar %>" alt="">
         <h1 class="text-5xl text-[#28667E] font-bold"><%= artikel.namaArtikel %></h1>
         <!-- <div class="h-36 bg-transparent">
             <p class="text-left text-4xl">
@@ -93,21 +95,24 @@
         <p class="text-left text-3xl"><strong>Ciri-ciri:</strong>
             <% artikel.ciri.forEach(function(langkah) { %>
                 <li class="text-left text-3xl"><%= langkah %></li>
-                <% }); %>
-            </p>
-            
-            <h2 class="text-left text-3xl"><strong>Langkah Penanganan:</strong></h2>
-            <p class="text-left text-3xl">
-                <% artikel.langkahPenanganan.forEach(function(langkah) { %>
-                    <li class="text-left text-3xl"><%= langkah %></li>
-                    <% }); %>
-                </p>
-                <!-- <a class="text-white text-3xl" href="/">Artikel</a> -->
-                <!-- <a class="text-white text-3xl" href="/artikel/<%= artikel.namaArtikel %>/update">update</a> -->
-                <!-- Tambahkan tombol delete -->
-                <img class="w-[64rem] h-[32rem] rounded-2xl object-cover" src="/uploads/img/<%= artikel.gambar %>" alt="">
-            </main>
-        </body>
+            <% }); %>
+        </p>
+        
+        <h2 class="text-left text-3xl"><strong>Langkah Penanganan:</strong></h2>
+        <ol class="text-left text-3xl">
+            <% artikel.langkahPenanganan.forEach(function(langkah) { %>
+                <li class="text-left text-3xl"><%= langkah %></li>
+            <% }); %>
+        </ol>
+        <!-- <a class="text-white text-3xl" href="/">Artikel</a> -->
+        
+            <!-- Tambahkan tombol delete -->
+        <!-- <form action="/artikel/<%= //artikel.namaArtikel %>" method="POST">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit">Delete</button>
+        </form> -->
+    </main>
+</body>
 <script>
     // Fungsi untuk menampilkan modal ketika tombol ditekan
     function showEditModal() {

@@ -71,25 +71,6 @@ app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'form')));
 // Menangani permintaan GET pada akar URL, menampilkan form unggah gambar
 
-// app.get("/", async (req, res) => {
-//     try {
-//         const userData = req.cookies.username;
-//         // if (!userData) {
-//         //     return res.redirect("/login");
-//         // }
-
-//         // // Parse data pengguna dari cookie
-//         // const { username, email, akses, gambar } = JSON.parse(userData);
-
-//         // Misalnya, ambil semua artikel dari database
-//         // const artikel = await Artikel.find();
-//         // res.render('beranda', { artikel });
-//         res.send("test")
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Terjadi kesalahan beranda');
-//     }
-// });
 app.get("/", async (req, res) => {
     try {
       const userData = req.cookies.userData;
@@ -97,21 +78,29 @@ app.get("/", async (req, res) => {
         return res.redirect("/login");
       }
   
-      const { username, email, akses, gambar } = JSON.parse(userData);
+      const { id, username, email, akses, gambar } = JSON.parse(userData);
+      let beranda;
+      if (akses == "1") {
+          beranda = "beranda_admin";
+        } else {
+            beranda = "beranda";
+        }
   
       const artikel = await Artikel.find();
-      res.render("beranda", { 
+      res.render(beranda, { 
         artikel: artikel,
+        id: id,
         username: username, 
         email: email, 
         akses: akses, 
         gambar: gambar 
-        });
+      });
     } catch (err) {
       console.error(err);
       res.status(500).send(`Error: ${err.message}`);
     }
   });
+
 app.get("/login", async (req, res) => {
     try {
         const akun = await User.find();
@@ -129,13 +118,36 @@ app.get("/signup", async (req, res) => {
         res.status(500).send('Terjadi kesalahan');
     }
 });
+
+app.post('/signup', (req, res) => {
+    try{
+        const { username, email, password } = req.body;
+        const akses = "2";
+        const gambar = "profile.jpeg";
+        // Create new user instance and save to database
+        const newUser = new User({ username, email, password, akses, gambar });
+        newUser.save();
+        res.redirect('/login');
+    } catch(err){
+        res.status(500).send('Error saving user to database.');
+    }
+});
+
 app.get("/artikel/:namaArtikel", async (req, res) => {
     try {
       const artikel = await Artikel.findOne({ namaArtikel: req.params.namaArtikel }); // Mencari artikel berdasarkan namaArtikel
       if (!artikel) {
         return res.status(404).send("Artikel tidak ditemukan");
       }
-      res.render("detail_artikel", { artikel }); // Merender halaman detail artikel dengan data artikel yang ditemukan
+      const userData = req.cookies.userData;
+      const { id, username, email, akses, gambar } = JSON.parse(userData);
+      let detail_artikel;
+      if (akses == "1") {
+          detail_artikel = "detail_artikel_admin";
+        } else {
+          detail_artikel = "detail_artikel";
+        }
+      res.render(detail_artikel, { artikel }); // Merender halaman detail artikel dengan data artikel yang ditemukan
     } catch (err) {
       console.error(err);
       res.status(500).send("Terjadi kesalahan");
@@ -149,12 +161,14 @@ try {
     return res.redirect("/login");
     }
 
-    const { username, email, akses, gambar } = JSON.parse(userData);
+    const { id, username, email,pass, akses, gambar } = JSON.parse(userData);
 
     // const artikel = await Artikel.find();
     res.render("akun", {
+    id: id,
     username: username, 
     email: email, 
+    pass: userData.pass,
     akses: akses, 
     gambar: gambar,
     userData: JSON.parse(userData)
@@ -164,6 +178,99 @@ try {
     res.status(500).send(`Error: ${err.message}`);
 }
 });
+
+app.get("/ubah-akun", async (req, res) => {
+    try {
+        const userData = req.cookies.userData;
+        if (!userData) {
+        return res.redirect("/login");
+        }
+    
+        const { id, username, email,pass, akses, gambar } = JSON.parse(userData);
+    
+        // const artikel = await Artikel.find();
+        res.render("ubah_akun", {
+        id: id,
+        username: username, 
+        email: email, 
+        pass: userData.pass,
+        akses: akses, 
+        gambar: gambar,
+        userData: JSON.parse(userData)
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(`Error: ${err.message}`);
+    }
+    });
+    
+app.get("/riwayat-user", async (req, res) => {
+    try {
+      const userData = req.cookies.userData;
+      if (!userData) {
+        return res.redirect("/login");
+      }
+  
+      const { id, username, email, akses, gambar } = JSON.parse(userData);
+      let beranda;
+      if (akses == "1") {
+          beranda = "riwayat_user";
+        } else {
+          beranda = "beranda";
+        }
+  
+      const artikel = await User.find();
+      res.render(beranda, { 
+        id:id,
+        artikel: artikel,
+        username: username, 
+        email: email, 
+        akses: akses, 
+        gambar: gambar 
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send(`Error: ${err.message}`);
+    }
+  });
+
+app.post('/akun/update-gambar', customUpload.single('gambar'), async function(req, res) {
+    try {
+        // Simpan URL gambar baru di variabel
+        const gambarBaru = req.file.filename; // Ubah ke URL penyimpanan cloud jika diperlukan
+        const userData = req.cookies.userData;
+        const { id, username, email, akses, gambar } = JSON.parse(userData);
+        // Dapatkan nama artikel dari parameter URL
+        const namaArtikel = req.params.namaArtikel;
+    
+        // Perbarui gambar artikel dalam MongoDB
+        const artikel = await User.findOneAndUpdate(
+        { username: username },
+        { gambar: gambarBaru }
+        );
+    
+        // Jika artikel ditemukan dan gambar berhasil diperbarui
+        if (artikel) {
+        // const artikel = await User.findOne({ username: username });
+        res.clearCookie('userData');
+        res.cookie('userData', JSON.stringify({
+            username: artikel.username,
+            id: artikel._id,
+            email: artikel.email,
+            pass: artikel.pass,
+            akses: artikel.akses,
+            gambar: gambarBaru
+        }));
+        // res.send('Gambar artikel berhasil diperbarui');
+        res.redirect("/akun")
+        } else {
+        res.status(404).send('Artikel tidak ditemukan');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).send('Terjadi kesalahan dalam memperbarui gambar artikel');
+    }
+    });
 
 router.get('/artikel/:namaArtikel/update', async (req, res) => {
     try {
@@ -194,8 +301,10 @@ app.post('/login', async (req, res) => {
 
         // Set cookie dengan nama username
         res.cookie('userData', JSON.stringify({
+            id: user._id,
             username: user.username,
             email: user.email,
+            pass: user.pass,
             akses: user.akses,
             gambar: user.gambar
         }));
@@ -206,6 +315,77 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/lupa-pass', (req, res) => {
+    res.render('lupa');
+  });
+
+app.post('/lupa-pass', async(req,res)=>{
+    const { username, email } = req.body;
+    try {
+        const user = await User.findOne({ username, email });
+        if (!user) {
+          return res.render('alert', { message: 'User not found' });
+        }
+    
+        // Generate token and send email logic here...
+    
+        res.render('pass',{username, email});
+    } catch (err) {
+        res.status(500).render('alert', { message: 'Server error' });
+    }
+})
+app.post('/ubah-pass', async (req, res) => {
+    const { username, email, password, password1 } = req.body;
+  
+    try {
+      const user = await User.findOne({ username, email });
+  
+      if (!user) {
+        return res.render('alert', { message: 'User not found' });
+      }
+  
+      user.pass = password;
+      await user.save();
+  
+      res.render('alert', { message: 'Password has been updated' });
+    } catch (err) {
+      res.status(500).render('alert', { message: 'Server error' });
+    }
+});
+
+app.post('/ubah-akun', async (req, res) => {
+    
+    const { id, username, email, password } = req.body;
+  
+    try {
+      // Cari dan update pengguna berdasarkan ID
+      const user = await User.findByIdAndUpdate(id, { username, email, pass: password }, { new: true, runValidators: true });
+  
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+      res.clearCookie('userData');
+      res.cookie('userData', JSON.stringify({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        pass: user.pass,
+        akses: user.akses,
+        gambar: user.gambar
+        }));
+  
+      console.log('User updated successfully:', user);
+      res.redirect('/akun');
+    } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).send('Server error');
+    }
+  });
+app.get('/logout', (req, res) => {
+    // Menghapus cookie bernama 'token'
+    res.clearCookie('userData');
+    res.redirect("/");
+});
 
 router.post('/artikel/:namaArtikel/update', async (req, res) => {
     try {
@@ -312,44 +492,16 @@ app.get("/diagnosa", async (req, res) => {
     }
 });
 
-// app.post('/history', async (req, res) => {
-//     try {
-//         const hasil = req.body.hasil; // Mengambil nilai dari input tersembunyi "hasil"
-//         const waktu = req.body.waktu; // Mengambil nilai dari input tersembunyi "waktu"
-//         const history = await History.find(
-//                 { hasil: hasil },
-//                 { waktu: waktu }
-//         );
-//         // const history = await History.find(); // Ambil semua data riwayat
-//         res.render('result', { item: history }); // Render halaman EJS dengan data riwayat
-//     } catch (error) {
-//         console.error('Error fetching history:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-// app.post('/history', async (req, res) => {
-//     try {
-//         const id = req.body.id; // Extract the id from the request body
-//         const diagnosa = await History.findOne({ _id: id }); // Query the History model using the id
-//         if (diagnosa) {
-//             res.render('result', { item: diagnosa }); // Render the result page with the retrieved data
-//         } else {
-//             res.status(404).send('History not found');
-//         } // Render the result page with the filtered data
-//     } catch (error) {
-//         console.error('Error fetching history:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-//   });
 app.post('/history', async (req, res) => {
     try {
         const id = req.body.id; // Ekstrak id dari body permintaan
         console.log(`Received request for history with ID: ${id}`);
         
         const diagnosa = await History.findOne({ _id: id }); // Query model History menggunakan id
+        const penyakit = await Artikel.findOne({namaArtikel: diagnosa.hasil.class});
         if (diagnosa) {
             console.log('History found:', diagnosa);
-            res.render('result', { item: diagnosa }); // Render halaman hasil dengan data yang diperoleh
+            res.render('result', { item: diagnosa, penyakit: penyakit }); // Render halaman hasil dengan data yang diperoleh
         } else {
             console.log('History not found for ID:', id);
             res.status(404).send('History not found');
@@ -360,22 +512,11 @@ app.post('/history', async (req, res) => {
     }
 });
 
-
-
 app.get('/createArtikel', (req, res) => {
     res.render('createArtikel');
   });
   
-// app.post('/artikel', async (req, res) => {
-// try {
-//     const artikel = new Artikel(req.body);
-//     await artikel.save();
-//     res.redirect('/');
-// } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Terjadi kesalahan');
-// }
-// });
+
 app.post('/artikel', customUpload.single('gambar'), async (req, res) => {
     const { namaArtikel, penyebab, ciri, langkahPenanganan } = req.body;
     const gambar = req.file.filename;
@@ -486,6 +627,57 @@ app.post('/artikel', customUpload.single('gambar'), async (req, res) => {
 //         });
 // });
 
+// app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
+//     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
+//     if (!req.file) {
+//         return res.status(400).send('No file uploaded.');
+//     }
+
+//     // Path dari file yang diunggah
+//     const imagePath = req.file.path;
+
+//     // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
+//     const newImagePath = `uploads/${req.file.originalname}`;
+//     fs.renameSync(imagePath, newImagePath);
+
+//     // URL dari gambar yang diunggah
+//     const imageUrl = `http://localhost:${port}/${newImagePath}`;
+
+//     // Mengklasifikasikan gambar menggunakan model machine learning
+//     return model
+//         .classify({
+//             imageUrl: imageUrl, // Gunakan URL file lokal sebagai URL gambar
+//         })
+//         .then(async (predictions) => {
+//             // Ambil prediksi teratas
+//             const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
+
+//             // Ambil informasi pengguna dari cookie
+//             const userData = JSON.parse(req.cookies.userData || '{}');
+//             const username = userData.username;
+
+//             if (!username) {
+//                 return res.status(400).send('Username not found in cookie.');
+//             }
+
+//             // Simpan data diagnosa ke dalam database
+//             const diagnosa = new History({
+//                 username: username, // Ambil username dari cookie
+//                 gambar: req.file.originalname,
+//                 hasil: topPrediction,
+//             });
+
+//             await diagnosa.save(); // Simpan data diagnosa
+
+//             // Render halaman EJS dengan data yang diperlukan
+//             res.render('result', { item: diagnosa });
+//         })        
+//         .catch((e) => {
+//             // Menangani kesalahan dan mengirim respons 500 Internal Server Error
+//             console.error(e);
+//             res.status(500).send(`Something went wrong!`);
+//         });
+// });
 app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
     if (!req.file) {

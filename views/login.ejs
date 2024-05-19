@@ -13,7 +13,7 @@
     <div class="flex flex-col lg:flex-row w-full">
         <div class="bg-cover bg-center lg:w-1/2" style="background-image: url('/uploads/img/unsplash_4XoCxdMnWFg.jpg');">
         </div>
-        <div class="flex flex-col items-center justify-center bg-[#2D9596] p-8 rounded-lg shadow-md w-full lg:w-1/2" style="background-color: #2D9596;">
+        <div class="flex flex-col items-center justify-center bg-[#2D9596] p-8 rounded-lg shadow-md w-full sm:w-1/2" style="background-color: #2D9596;">
           <img class="w-1/2 h-auto" src="/uploads/img/Logo.png" alt="">
           <form class="flex flex-col bg-[#28667E] text-black p-20 px-40 rounded-xl w-4/5 h-2/5" style="background-color: #28667E;" action="/login" method="POST">
             <div class="flex-1">
@@ -24,14 +24,14 @@
               <div class="text-2xl mb-5">
                 <label class="block text-white" for="pass">Password:</label>
                 <input placeholder="password" class="px-3 mt-1 block h-12 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="password" id="pass" name="pass" required>
-                <a class="text-[#2D9596] text-2 flex justify-end" href="#">lupa password</a>  
+                <a class="text-[#2D9596] text-2 flex justify-end" href="/lupa-pass">lupa password</a>  
               </div>
             </div>
             <div class="flex flex-col justify-center items-center mt-5 gap-9">
-              <button class="h-12 w-1/2 bg-indigo-500 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50 font-semibold text-[#2D9596]" type="submit">Log in</button>
-              <p class="text-white">Belum punya akun? <a class="text-[#2D9596]"  href="/signup">Sign Up</a></p>
+              <button class="h-12 w-1/2 text-2xl font-bold bg-[#D9D9D9] text-[#2D9596] py-2 rounded-md hover:bg-indigo-600 hover:text-[#d9d9d9] focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="submit">Log in</button>
+              <p class="text-white">Belum punya akun? <a class="text-[#2D9596] hover:text-white"  href="/signup">Sign Up</a></p>
             </div>
-            </form>
+          </form>
             <!-- <p class="text-sky-700">Sign Up</p> -->
         </div>
     </div>

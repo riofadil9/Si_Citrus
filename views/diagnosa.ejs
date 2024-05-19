@@ -100,9 +100,6 @@
             display: flex;
             flex-direction: column;
         }
-        form p{
-            font-size: 32px;
-        }
         form span{
             font-weight: 300;
         }
@@ -124,13 +121,10 @@
             flex: 1;
             margin-top: 20px;
             padding: 10px;
-            border: 1px solid #ccc;
             font-size: x-large;
             text-align: left ;
             align-items: start;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
         .sidebar{
             display: flex;
@@ -148,7 +142,7 @@
             font-weight: 200;
             box-sizing: border-box;
         }
-        .sidebar button{
+        .sidebar .sidebar1{
             /* margin-top: 65vh; */
             width: 227px;
             height: 58px;
@@ -185,13 +179,49 @@
             background-size: cover;
         }
     </style>
+    <script>
+        $(document).ready(function() {
+            $('#refresh-btn').on('click', function() {
+                $.ajax({
+                    url: '/api/history',
+                    method: 'GET',
+                    success: function(data) {
+                        const historyContainer = $('#history-container');
+                        historyContainer.empty();
+    
+                        if (data.length === 0) {
+                            historyContainer.append('<p>No history available.</p>');
+                        } else {
+                            data.forEach(function(item) {
+                                const form = `
+                                    <form class="history-form" action="/history" method="post">
+                                        <input type="hidden" name="id" value="${item._id}">
+                                        <button class="font-bold" type="submit">
+                                            Hasil: ${item.hasil.class} <br>
+                                            Waktu: ${new Date(item.waktu).toLocaleString()}
+                                        </button>
+                                    </form>
+                                `;
+                                historyContainer.append(form);
+                            });
+                        }
+                    },
+                    error: function(err) {
+                        console.error('Error fetching history:', err);
+                    }
+                });
+            });
+        });
+    </script>
     <link rel="stylesheet" type="text/css" href="/styles.css">
 </head>
 <body>
     <header>
         <img src="/uploads/img/Logo.png" alt="logo">
         <nav class="navigation">
-            <img src="/uploads/img/profile.jpeg" alt="">
+            <a href="/akun">
+                <img src="/uploads/img/profile.jpeg" alt="">
+            </a>
         </nav>
     </header>
     <div class="flex flex-col h-screen">
@@ -199,23 +229,32 @@
         <div class="flex flex-1 w-full">
             <div class="sidebar flex-none w-72">
                 <!-- <h1 class="mt-32">HI</h1> -->
-                <div class="flex-col gap-10 h-[50rem] px-4 overflow-y-scroll scrollbar-custom">
-                    <% if (history.length === 0) { %>
-                        <p>No history available.</p>
-                    <% } else { %>
-                        <% history.forEach((item) => { %>
-                            <form class="history-form" action="/history" method="post">
-                                <input type="hidden" name="id" value="<%= item._id %>">
-                                <button class="font-bold" type="submit">
-                                    Hasil: <%= item.hasil.class %> <br>
-                                    Waktu: <%= new Date(item.waktu).toLocaleString() %>
-                                </button>
-                            </form>
-                        <% }); %>
-                    <% } %>                     
+                <div class="flex-col gap-20 h-[50rem] px-4 overflow-y-scroll scrollbar-custom">
+                    <!-- <button onclick="window.location.reload();">Refresh</button> -->
+                    <div id="history-container">
+                        <% if (history.length === 0) { %>
+                            <p>No history available.</p>
+                        <% } else { %>
+                            <% history.forEach((item) => { %>
+                                <form class="history-form" action="/history" method="post">
+                                    <input type="hidden" name="id" value="<%= item._id %>">
+                                    <button class="" type="submit">
+                                        <div class="flex flex-col text-left text-white justify-start items-start text-xl font-medium mb-5">
+                                            <p class="text-left">
+                                                Hasil: <%= item.hasil.class %>
+                                            </p>
+                                            <p>
+                                                <%= new Date(item.waktu).toLocaleString() %>
+                                            </p>
+                                        </div>
+                                    </button>
+                                </form>
+                            <% }); %>
+                        <% } %>
+                    </div>                  
                 </div>
-                <button class="mt-2" id="lakukanDiagnosa" name="lakukanDiagnosa">Tambah Gambar</button><br>
-                <a href="/">Artikel</a>
+                <button class="mt-2 sidebar1" id="lakukanDiagnosa" name="lakukanDiagnosa">Tambah Gambar</button><br>
+                <a class="sidebar1 flex justify-center items-center" href="/">Artikel</a>
             </div>
             <div class="containe">
                 <form id="uploadForm" action="/image/clasify" method="POST" enctype="multipart/form-data">
@@ -236,210 +275,198 @@
             <div id="output"></div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const formContainer = document.querySelector(".containe");
-            document.querySelectorAll('.history-form').forEach(form => {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault(); // Prevent the default form submission
-    
-                    const formData = new FormData(form);
-                    const id = formData.get('id');
-    
-                    try {
-                        const response = await fetch('/history', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ id }),
-                        });
-    
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok ' + response.statusText);
-                        }
-    
-                        const data = await response.text(); // Get the response text
-                        const outputElement = document.getElementById("output");
-                        outputElement.innerHTML = data; // Update the div with the response
-                        outputElement.style.display = "flex";
-                        outputElement.style.flexDirection = "column";
-                        formContainer.style.display = "none"
-                    } catch (error) {
-                        console.error('There was a problem with the fetch operation:', error);
-                    }
-                });
-            });
-        });
-    </script>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const lakukanDiagnosaButton = document.getElementById("lakukanDiagnosa");
-            const formContainer = document.querySelector(".containe");
-            const outputDiv = document.getElementById("output");
-            const dropArea = document.getElementById('dropArea');
-            const imgView = document.getElementById("img-view");
 
-            lakukanDiagnosaButton.addEventListener("click", function() {
-                formContainer.style.display = "flex"; // Tampilkan form saat tombol ditekan
-                outputDiv.style.display = "none"; // Sembunyikan div output saat form muncul
-            });
-
-            const closeButton = document.getElementById("closeForm");
-            closeButton.addEventListener("click", function() {
-                formContainer.style.display = "none"; // Sembunyikan form saat tombol "Close" ditekan
-                outputDiv.style.display = "flex"; // Tampilkan kembali div output saat form disembunyikan
-            });
-
-            const form = document.getElementById("uploadForm");
-            const history = document.getElementById("history");
-            const fileInput = document.getElementById("fileInput");
-            // const imgView = document.getElementById("")
-            // Fungsi untuk menangani pengiriman formulir dan menampilkan output JSON
-            // Fungsi async yang akan mengirim formulir dan menampilkan output JSON
-            
-            // async function submitForm(event) {
-            //     event.preventDefault(); // Mencegah pengiriman formulir secara default
-
-            //     // Mengirim formulir menggunakan Fetch API
-            //     const formData = new FormData(this);
-            //     const response = await fetch(this.action, {
-            //         method: this.method,
-            //         body: formData
-            //     });
-
-            //     // Mendapatkan hasil respons dalam bentuk JSON
-            //     const result = await response.json();
-
-            //     // Menampilkan hasil respons di dalam elemen output
-            //     const outputElement = document.getElementById("output");
-            //     outputElement.innerHTML = JSON.stringify(result, null, 2);
-
-            //     // Setelah pengiriman formulir berhasil, sembunyikan form
-            //     formContainer.style.display = "none";
-            //     outputDiv.style.display = "block"; // Tampilkan kembali div output
-            // }
-            
-            async function submitForm(event) {
-                event.preventDefault(); // Mencegah pengiriman formulir secara default
-
-                const formData = new FormData(this);
-                const response = await fetch(this.action, {
-                    method: this.method,
-                    body: formData
-                });
-
-                const resultHTML = await response.text();
-
-                const outputElement = document.getElementById("output");
-                outputElement.innerHTML = resultHTML;
-
-                // Opsional sembunyikan form atau tampilkan hanya output
-                formContainer.style.display = "none"; // Sembunyikan form setelah pengiriman
-                outputElement.style.display = "flex";
-                outputElement.style.flexDirection = "column"; // Tampilkan elemen output
-            }
-
-            // function previewImage(event) {
-            //     var input = event.target;
-            //     var preview = document.getElementById('preview');
-
-            //     var reader = new FileReader();
-            //     reader.onload = function(){
-            //         preview.src = reader.result;
-            //         preview.style.display = 'flex';
-            //     }
-            //     reader.readAsDataURL(input.files[0]);
-            //     console.log("test");
-            // }
-
-            // Menambahkan event listener ke formulir untuk menangani pengiriman formulir
-            // dropArea.addEventListener("change",uploadImage);
-            function uploadImage(event) {
-                var file = event.target.files[0];
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('preview').src = event.target.result;
-                }
-                reader.readAsDataURL(file);
-                // let imgLink = URL.createObjectURL(fileInput.files[0]);
-                // dropArea.style.backgroundImage = `url("/uploads/${fileInput.files[0].name}")`;
-                // console.log(fileInput.files[0].name)
-                // imgView.style.opacity = 0;
-                // document.getElementById('fileInput').style.backgroundImage = `URL(${imgLink})`;
-            }
-            document.getElementById('fileInput').addEventListener('change', function(event) {
-                var file = event.target.files[0];
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('preview').src = event.target.result;
-                }
-                reader.readAsDataURL(file);
-            });
-            form.addEventListener("submit", submitForm);
-            // document.querySelectorAll('.history-form').forEach(form => {
-            //     form.addEventListener('submit', submitForm);
-            // });
-            // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-                document.body.addEventListener(eventName, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            dropArea.addEventListener('dragover', function(e) {
-                this.classList.add('highlight');
-            });
-
-            dropArea.addEventListener('dragleave', function() {
-                this.classList.remove('highlight');
-            });
-
-            dropArea.addEventListener('drop', function(e) {
-                this.classList.remove('highlight');
-                fileInput.files = e.dataTransfer.files;
-                previewFile(fileInput.files[0]);
-            });
-
-            function previewFile(file) {
-                var reader = new FileReader();
-                reader.onloadend = function() {
-                    document.getElementById('preview').src = reader.result;
-                }
-                if (file) {
-                    reader.readAsDataURL(file);
-                } else {
-                    document.getElementById('preview').src = "/uploads/img/camera_enhance.png";
-                }
-            }
-
-            fileInput.addEventListener('change', function() {
-                previewFile(fileInput.files[0]);
-            });
-            
-        });
-
-    </script>
-    <script>
-        function fetchHistory() {
-            fetch('/history')
-                .then(response => response.text()) // Mengambil teks dari respon
-                .then(html => {
-                    const outputDiv = document.getElementById('output');
-                    outputDiv.innerHTML = html; // Memasukkan HTML ke dalam output
-                })
-                .catch(error => {
-                    console.error('Error fetching history:', error);
-                });
-        }
-    
-        window.onload = fetchHistory;
-    </script>
-    
 </body>
+<script>
+    $(document).ready(function() {
+        $('#refresh-btn').on('click', function() {
+            $.ajax({
+                url: '/api/history',
+                method: 'GET',
+                success: function(data) {
+                    const historyContainer = $('#history-container');
+                    historyContainer.empty();
+
+                    if (data.length === 0) {
+                        historyContainer.append('<p>No history available.</p>');
+                    } else {
+                        data.forEach(function(item) {
+                            const form = `
+                                <form class="history-form" action="/history" method="post">
+                                    <input type="hidden" name="id" value="${item._id}">
+                                    <button class="font-bold" type="submit">
+                                        Hasil: ${item.hasil.class} <br>
+                                        Waktu: ${new Date(item.waktu).toLocaleString()}
+                                    </button>
+                                </form>
+                            `;
+                            historyContainer.append(form);
+                        });
+                    }
+                },
+                error: function(err) {
+                    console.error('Error fetching history:', err);
+                }
+            });
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const formContainer = document.querySelector(".containe");
+        document.querySelectorAll('.history-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent the default form submission
+
+                const formData = new FormData(form);
+                const id = formData.get('id');
+
+                try {
+                    const response = await fetch('/history', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+
+                    const data = await response.text(); // Get the response text
+                    const outputElement = document.getElementById("output");
+                    outputElement.innerHTML = data; // Update the div with the response
+                    outputElement.style.display = "flex";
+                    outputElement.style.flexDirection = "column";
+                    formContainer.style.display = "none"
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const lakukanDiagnosaButton = document.getElementById("lakukanDiagnosa");
+        const formContainer = document.querySelector(".containe");
+        const outputDiv = document.getElementById("output");
+        const dropArea = document.getElementById('dropArea');
+        const imgView = document.getElementById("img-view");
+
+        lakukanDiagnosaButton.addEventListener("click", function() {
+            formContainer.style.display = "flex"; // Tampilkan form saat tombol ditekan
+            outputDiv.style.display = "none"; // Sembunyikan div output saat form muncul
+        });
+
+        const closeButton = document.getElementById("closeForm");
+        closeButton.addEventListener("click", function() {
+            formContainer.style.display = "none"; // Sembunyikan form saat tombol "Close" ditekan
+            outputDiv.style.display = "flex"; // Tampilkan kembali div output saat form disembunyikan
+        });
+
+        const form = document.getElementById("uploadForm");
+        const history = document.getElementById("history");
+        const fileInput = document.getElementById("fileInput");
+        
+        async function submitForm(event) {
+            event.preventDefault(); // Mencegah pengiriman formulir secara default
+
+            const formData = new FormData(this);
+            const response = await fetch(this.action, {
+                method: this.method,
+                body: formData
+            });
+
+            const resultHTML = await response.text();
+
+            const outputElement = document.getElementById("output");
+            outputElement.innerHTML = resultHTML;
+
+            // Opsional sembunyikan form atau tampilkan hanya output
+            formContainer.style.display = "none"; // Sembunyikan form setelah pengiriman
+            outputElement.style.display = "flex";
+            outputElement.style.flexDirection = "column"; // Tampilkan elemen output
+        }
+
+        function uploadImage(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('preview').src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('preview').src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+        form.addEventListener("submit", submitForm);
+
+        // Mengatur event listener untuk mencegah peristiwa default saat file ditarik dan dilepas
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        dropArea.addEventListener('dragover', function(e) {
+            this.classList.add('highlight');
+        });
+
+        dropArea.addEventListener('dragleave', function() {
+            this.classList.remove('highlight');
+        });
+
+        dropArea.addEventListener('drop', function(e) {
+            this.classList.remove('highlight');
+            fileInput.files = e.dataTransfer.files;
+            previewFile(fileInput.files[0]);
+        });
+
+        function previewFile(file) {
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                document.getElementById('preview').src = reader.result;
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('preview').src = "/uploads/img/camera_enhance.png";
+            }
+        }
+
+        fileInput.addEventListener('change', function() {
+            previewFile(fileInput.files[0]);
+        });
+        
+    });
+
+</script>
+<script>
+    function fetchHistory() {
+        fetch('/history')
+            .then(response => response.text()) // Mengambil teks dari respon
+            .then(html => {
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = html; // Memasukkan HTML ke dalam output
+            })
+            .catch(error => {
+                console.error('Error fetching history:', error);
+            });
+    }
+
+    window.onload = fetchHistory;
+</script>
+    
 </html>
