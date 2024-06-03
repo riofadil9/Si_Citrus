@@ -90,8 +90,11 @@
     <div class="h-12 lg:h-40"></div>
     <div class="flex justify-center lg:justify-start">
         <div class="flex flex-row lg:flex-col">
-            <button class="text-white text-2xl flex justify-center items-center content-center" id="openModalBtn">
-                <img class="ml-0 lg:ml-64 w-32 lg:w-64 mb-5 h-32 mt-12 lg:h-64 rounded-full" src="/uploads/img/<%= userData.gambar %>" alt="/uploads/img/<%= userData.gambar %>">
+            <button hidden class="mb-32 text-white text-2xl flex justify-center items-center content-center" id="openModalBtn">
+                <div class=" text-white text-2xl flex justify-center items-center content-center">
+                    <img class="ml-0 lg:ml-64 w-32 lg:w-64 mb-5 h-32 mt-12 lg:h-64 rounded-full" src="/uploads/img/<%= userData.gambar %>" alt="/uploads/img/<%= userData.gambar %>">
+                </div>
+
             </button>
         </div>
     </div>
@@ -134,7 +137,7 @@
     </header>
     <!-- <a class="btnDiagnosa text-white fixed shadow-2xl" href="/diagnosa"><img src="/uploads/img/diagnosa.svg" alt=""> diagnosa</a> -->
     <a href="/akun" class="py-3 rounded-xl flex justify-center items-center lg:h-20 right-2 lg:right-12 bottom-2 lg:bottom-12 bg-[#28667E] w-40 lg:w-64 text-white fixed shadow-2xl hover:bg-blue-500 transition duration-300 ease-in-out"><p class="text-sm lg:text-2xl">Batal</p></a>
-    <button class="py-3 rounded-xl flex justify-center items-center lg:h-20 right-2 lg:right-12 bottom-2 lg:bottom-12 bg-[#5A2E1B] w-40 lg:w-72 mr-[10.5rem] lg:mr-72 text-white fixed shadow-2xl hover:bg-[#d1ae61] transition duration-300 ease-in-out"><p class="text-sm lg:text-2xl">Kirim</p></button>
+    <button id="submitButton" class="py-3 rounded-xl flex justify-center items-center lg:h-20 right-2 lg:right-12 bottom-2 lg:bottom-12 bg-[#5A2E1B] w-40 lg:w-72 mr-[10.5rem] lg:mr-72 text-white fixed shadow-2xl hover:bg-[#d1ae61] transition duration-300 ease-in-out"><p class="text-sm lg:text-2xl">Kirim</p></button>
 
 </body>
 <script>

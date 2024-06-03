@@ -1,0 +1,79 @@
+[{
+  "_id": {
+    "$oid": "662a4554b3d8d0cff3f9cf98"
+  },
+  "namaArtikel": "blackspot",
+  "penyebab": "Jamur Phyllostica citricarpa",
+  "ciri": [
+    "Dapat menginfeksi daun dan buah.",
+    "Muncul bintik hitam kecil pada permukaan daun. Bintik-bintik ini biasanya berukuran sekitar 1-5 mm dan berwarna coklat tua atau hitam.",
+    "Daun yang terinfeksi blackspot mungkin terlihat layu dan menguning.",
+    "Pada beberapa kasus",
+    "bintik-bintik blackspot dapat berlubang dan menyebabkan daun robek.",
+    "Infeksi yang parah dapat menyebabkan daun rontok."
+  ],
+  "langkahPenanganan": [
+    "Tentukan tanaman/pohon yang terinfeksi (Penggunaan lensa untuk memeriksa serangga juga merupakan tindakan yang bijaksana)",
+    "Menyemprot tanaman dengan semburan air yang deras akan berhasil membasmi serangga",
+    "memangkas dedaunan yang terinfeksi",
+    "Jika terjadi infeksi besar",
+    "oleskan sedikit minyak holtikultura pada daun tanaman kemudian dalam skala besar (tutupi pohon tersebut sebelum menyemprotkan minyak). Penyemprotan dapat dilakukan kembali setelah jangka waktu 10 hingga 14 hari untuk membantu menghilangkan serangan parah. Minyaknya bisa berbahan dasar parafin atau nimba jika serangga yang umum adalah kutu daun atau lalat putih. Penyemprotan sebaiknya dilakukan pada pagi atau sore hari."
+  ],
+  "gambar": "blackspot.png"
+},
+{
+  "_id": {
+    "$oid": "66320587af4ddd48cd64b525"
+  },
+  "namaArtikel": "Canker",
+  "penyebab": "Bakteri Xanthomonas axonopodis pv. citri (Xac)",
+  "ciri": [
+    "Dapat menginfeksi bagian daun, buah, batang, ranting dan pucuk tanaman jeruk.",
+    "Diawali dengan bintik-bintik kecil, bulat, berwarna kuning yang kemudian membesar membentuk lesi berwarna kecoklatan"
+  ],
+  "langkahPenanganan": [
+    "1. Pengendalian dengan fungisida berbahan aktif Copper dan Antibiotika seperti Streptomisin dan Kloromisetin",
+    "2. Pengendalian secara kultur teknis dilakukan dengan cara tidak menanam jenis yang rentan disekitar jenis komersial.",
+    "3. Penyemprotan hanya perlu dilakukan pada musim hujan sebelum terdapat serangan berat."
+  ],
+  "gambar": "Image (3).png",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66593c1aa16f8bc7060797da"
+  },
+  "namaArtikel": "healthy",
+  "penyebab": "perawatan yang bagus",
+  "ciri": [
+    "Warna Daun: Daun yang sehat umumnya memiliki warna hijau cerah dan merata tanpa bercak atau perubahan warna yang mencolok.",
+    "Kekenyalan dan Tekstur: Daun yang sehat akan terasa kenyal saat disentuh, tidak layu atau mengkerut. Teksturnya harus halus dan tidak kasar.",
+    "Ukuran dan Bentuk: Daun harus memiliki ukuran dan bentuk yang normal sesuai dengan varietas jeruk yang ditanam. Ukurannya biasanya seragam di seluruh pohon.",
+    "Kebersihan Daun: Daun yang sehat tidak memiliki lapisan debu tebal, kotoran, atau zat lengket yang dihasilkan oleh hama. Daun juga bebas dari jejak serangan serangga seperti lubang atau gigitan.",
+    "Tepi Daun: Tepi daun harus utuh dan tidak menguning atau mengering. Daun yang sehat tidak menunjukkan tanda-tanda kerusakan di tepinya.",
+    "Pertumbuhan Baru: Daun muda yang tumbuh harus tampak segar dan hijau muda. Pertumbuhan baru yang sehat menunjukkan bahwa pohon sedang dalam kondisi yang baik.",
+    "Ketiadaan Tanda Penyakit: Daun yang sehat tidak menunjukkan tanda-tanda penyakit seperti bercak hitam (jamur), bercak kuning (kekurangan nutrisi atau virus), atau perubahan bentuk yang aneh."
+  ],
+  "langkahPenanganan": [
+    "Pemupukan Rutin: Pastikan pohon mendapatkan nutrisi yang cukup dengan pemupukan rutin menggunakan pupuk yang sesuai.",
+    "Pengendalian Hama dan Penyakit: Gunakan pestisida alami atau organik untuk mengendalikan hama. Lakukan pemangkasan untuk mencegah penyakit.",
+    "Penyiraman yang Tepat: Siram pohon secara teratur, terutama pada musim kemarau, untuk menjaga kelembaban tanah."
+  ],
+  "gambar": "Image (8).png",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66598d8794edbb3e31046d1c"
+  },
+  "namaArtikel": "Greening",
+  "penyebab": "Bakteri update Xanthomonas axonopodis pv. citri (Xac)",
+  "ciri": [
+    "-"
+  ],
+  "langkahPenanganan": [
+    "-"
+  ],
+  "gambar": "Image (2).png",
+  "__v": 0
+}]

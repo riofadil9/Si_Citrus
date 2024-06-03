@@ -367,7 +367,7 @@ app.post('/lupa-pass', async(req,res)=>{
     }
 })
 app.post('/ubah-pass', async (req, res) => {
-    const { username, email, password, password1 } = req.body;
+    const { username, email, password} = req.body;
   
     try {
       const user = await User.findOne({ username, email });
@@ -395,9 +395,9 @@ app.post('/ubah-pass', async (req, res) => {
 
 app.post('/ubah-akun', async (req, res) => {
     
-    const { id, username, email, password } = req.body;
-  
+    
     try {
+      const { id, username, email, password } = req.body;
       // Cari dan update pengguna berdasarkan ID
       const user = await User.findByIdAndUpdate(id, { username, email, pass: password }, { new: true, runValidators: true });
   
