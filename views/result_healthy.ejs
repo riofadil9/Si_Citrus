@@ -1,0 +1,12 @@
+<body>
+    <div class="flex flex-col justify-start items-start content-start h-[59rem] px-8 mb-20">
+        <img class="w-[20rem] h-[20rem] lg:w-[35rem] lg:h-[35rem]" src="/uploads/<%= item.gambar %>" alt="">
+        <p class="text-sm lg:text-3xl">Hasil diagnosa:</p>
+        <h1 class="my-1 text-xl lg:my-3 lg:text-6xl text-black font-bold"><%= item.hasil.class %> <%= (parseFloat(JSON.stringify(item.hasil.score)) * 100).toFixed(2).replace(/\.00$/, '') %>%</h1><br class="hidden lg:flex">
+        <p class="text-left text-sm lg:text-3xl">Kemungkinan tanaman ini <%= item.hasil.class %> sebesar <%= (parseFloat(JSON.stringify(item.hasil.score)) * 100).toFixed(2).replace(/\.00$/, '') %>%. Terus lakukan <%= penyakit.penyebab %>.</p>
+        <p class="text-sm lg:text-3xl"><br><br>Info lebih lengkap:</p>
+        <li>
+            <a class="text-sm lg:text-3xl text-blue-600 hover:underline hover:font-semibold" href="/artikel/<%= penyakit.namaArtikel %>"><%= penyakit.namaArtikel %></a>
+        </li>
+    </div>
+</body>

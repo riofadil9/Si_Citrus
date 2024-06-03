@@ -10,29 +10,35 @@
 </head>
 
 <body class="bg-gray-200 flex justify-center h-screen">
-    <div class="flex flex-col lg:flex-row w-full">
-        <div class="bg-cover bg-center lg:w-1/2" style="background-image: url('/uploads/img/unsplash_4XoCxdMnWFg.jpg');">
+    <div class="flex w-full">
+        <div class="bg-cover bg-center lg:w-1/2 bg-transparent lg:bg-[url('/uploads/img/unsplash_4XoCxdMnWFg.jpg')]">
         </div>
-        <div class="flex flex-col items-center justify-center bg-[#2D9596] p-8 rounded-lg shadow-md w-full sm:w-1/2" style="background-color: #2D9596;">
-          <img class="w-1/2 h-auto" src="/uploads/img/Logo.png" alt="">
-          <form class="flex flex-col bg-[#28667E] text-black p-20 px-40 rounded-xl w-4/5 h-2/5" style="background-color: #28667E;" action="/login" method="POST">
+        <div class="flex flex-col items-center justify-center max-sm:bg-[url('/uploads/img/unsplash_4XoCxdMnWFg.jpg')] bg-[#2D9596] p-8 shadow-md h-screen w-full lg:w-1/2">
+          <img class="w-1/2 h-auto lg:mt-0 lg:mb-0" src="/uploads/img/Logo.png" alt="">
+          <form class="flex flex-col bg-[#28667E] text-black p-4 lg:p-10 lg:px-10 rounded-xl w-4/5 h-auto" style="background-color: #28667E;" action="/login" method="POST">
             <div class="flex-1">
-              <div class="text-2xl mb-5">
+              <div class="lg:text-2xl mb-5">
                 <label class="block text-white" for="username">Username:</label>
-                <input placeholder="username" class="px-3 mt-1 block h-12 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="text" id="username" name="username" required>
+                <input placeholder="username" class="px-3 mt-1 block h-8 lg:h-12 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="text" id="username" name="username" required>
               </div>
-              <div class="text-2xl mb-5">
+              <div class="lg:text-2xl mb-5">
                 <label class="block text-white" for="pass">Password:</label>
-                <input placeholder="password" class="px-3 mt-1 block h-12 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="password" id="pass" name="pass" required>
-                <a class="text-[#2D9596] text-2 flex justify-end" href="/lupa-pass">lupa password</a>  
+                <input placeholder="password" class="px-3 mt-1 block h-8 lg:h-12 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="password" id="pass" name="pass" required>
+                <a class=" text-white hover:underline flex justify-end" href="/lupa-pass">lupa password</a>  
+              </div>
+              <div class="flex flex-col gap-2 justify-center items-center">
+                <button class="h-10 lg:h-12 w-1/3 lg:w-1/2 lg:text-2xl font-bold bg-[#D9D9D9] text-[#2D9596] lg:py-2 rounded-md hover:bg-indigo-600 hover:text-[#d9d9d9] focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="submit">Log in</button>
+                <p class="text-white static md:block hidden">
+                  Belum punya akun? 
+                  <a class="text-white hover:underline" href="/signup">Sign Up</a>
+                </p>          
               </div>
             </div>
-            <div class="flex flex-col justify-center items-center mt-5 gap-9">
-              <button class="h-12 w-1/2 text-2xl font-bold bg-[#D9D9D9] text-[#2D9596] py-2 rounded-md hover:bg-indigo-600 hover:text-[#d9d9d9] focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="submit">Log in</button>
-              <p class="text-white">Belum punya akun? <a class="text-[#2D9596] hover:text-white"  href="/signup">Sign Up</a></p>
-            </div>
+            <!-- <div class="flex flex-col justify-center items-center lg:mt-5 gap-9">
+            </div> -->
           </form>
-            <!-- <p class="text-sky-700">Sign Up</p> -->
+          <p class="text-white static lg:hidden">Belum punya akun? <a class="text-white"  href="/signup">Sign Up</a></p>
+          <!-- <p class="text-sky-700">Sign Up</p> -->
         </div>
     </div>
 </body>

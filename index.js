@@ -121,15 +121,24 @@ app.get("/signup", async (req, res) => {
 
 app.post('/signup', (req, res) => {
     try{
-        const { username, email, password } = req.body;
+        const { username, email, password, password1 } = req.body;
         const akses = "2";
         const gambar = "profile.jpeg";
         // Create new user instance and save to database
-        const newUser = new User({ username, email, password, akses, gambar });
+        const newUser = new User({ username: username, email: email, pass: password, akses: akses, gambar: gambar });
         newUser.save();
-        res.redirect('/login');
+        // res.redirect('/login');
+        res.cookie('userData', JSON.stringify({
+            id: newUser._id,
+            username: newUser.username,
+            email: newUser.email,
+            pass: newUser.pass,
+            akses: newUser.akses,
+            gambar: newUser.gambar
+        }));
+        res.redirect('/');
     } catch(err){
-        res.status(500).send('Error saving user to database.');
+        res.render('alert', { message: 'Error saving user to database.' })
     }
 });
 
@@ -140,6 +149,9 @@ app.get("/artikel/:namaArtikel", async (req, res) => {
         return res.status(404).send("Artikel tidak ditemukan");
       }
       const userData = req.cookies.userData;
+      if (!userData) {
+        return res.redirect("/login");
+      }
       const { id, username, email, akses, gambar } = JSON.parse(userData);
       let detail_artikel;
       if (akses == "1") {
@@ -147,7 +159,15 @@ app.get("/artikel/:namaArtikel", async (req, res) => {
         } else {
           detail_artikel = "detail_artikel";
         }
-      res.render(detail_artikel, { artikel }); // Merender halaman detail artikel dengan data artikel yang ditemukan
+    //   res.render(detail_artikel, { artikel });
+      res.render(detail_artikel, { 
+        id:id,
+        artikel: artikel,
+        username: username, 
+        email: email, 
+        akses: akses, 
+        gambar: gambar 
+      }); // Merender halaman detail artikel dengan data artikel yang ditemukan
     } catch (err) {
       console.error(err);
       res.status(500).send("Terjadi kesalahan");
@@ -264,11 +284,11 @@ app.post('/akun/update-gambar', customUpload.single('gambar'), async function(re
         // res.send('Gambar artikel berhasil diperbarui');
         res.redirect("/akun")
         } else {
-        res.status(404).send('Artikel tidak ditemukan');
+        res.render('alert', { message: 'Artikel tidak ditemukan' })
         }
     } catch (err) {
         console.error('Error:', err);
-        res.status(500).send('Terjadi kesalahan dalam memperbarui gambar artikel');
+        res.render('alert', { message: 'Terjadi kesalahan dalam memperbarui gambaar artikel' })
     }
     });
 
@@ -278,7 +298,19 @@ router.get('/artikel/:namaArtikel/update', async (req, res) => {
         if (!artikel) {
         return res.status(404).send();
         }
-        res.render('updateArtikel', { artikel });
+        const userData = req.cookies.userData;
+        if (!userData) {
+            return res.redirect("/login");
+        }
+        const { id, username, email, akses, gambar } = JSON.parse(userData);
+        res.render('updateArtikel', { 
+            id:id,
+            artikel: artikel,
+            username: username, 
+            email: email, 
+            akses: akses, 
+            gambar: gambar 
+          });
     } catch (error) {
         res.status(500).send(error);
     }
@@ -291,12 +323,12 @@ app.post('/login', async (req, res) => {
         // Cari user di database berdasarkan username
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(401).send('Username tidak ditemukan');
+            return res.render('alert', { message: 'Username tidak ditemukan' })
         }
         
         // Pastikan 'pass' ada di 'user' sebelum mencoba untuk mencocokkan password
-        if (!user.pass || !user.pass.includes(pass)) {
-            return res.status(401).send('Password salah');
+        if (user.pass !== pass) {
+            return res.render('alert', { message: 'Password salah' })
         }
 
         // Set cookie dengan nama username
@@ -311,7 +343,7 @@ app.post('/login', async (req, res) => {
         res.redirect('/');
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server Error');
+        res.render('alert', { message: 'server error' })
     }
 });
 
@@ -347,7 +379,15 @@ app.post('/ubah-pass', async (req, res) => {
       user.pass = password;
       await user.save();
   
-      res.render('alert', { message: 'Password has been updated' });
+      res.cookie('userData', JSON.stringify({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        pass: user.pass,
+        akses: user.akses,
+        gambar: user.gambar
+    }));
+    res.redirect('/');
     } catch (err) {
       res.status(500).render('alert', { message: 'Server error' });
     }
@@ -362,7 +402,7 @@ app.post('/ubah-akun', async (req, res) => {
       const user = await User.findByIdAndUpdate(id, { username, email, pass: password }, { new: true, runValidators: true });
   
       if (!user) {
-        return res.status(404).send('User not found');
+        res.render('alert', { message: 'User not found' })
       }
       res.clearCookie('userData');
       res.cookie('userData', JSON.stringify({
@@ -378,7 +418,7 @@ app.post('/ubah-akun', async (req, res) => {
       res.redirect('/akun');
     } catch (error) {
       console.error('Error updating user:', error);
-      res.status(500).send('Server error');
+      res.render('alert', { message: 'server error' })
     }
   });
 app.get('/logout', (req, res) => {
@@ -391,10 +431,10 @@ router.post('/artikel/:namaArtikel/update', async (req, res) => {
     try {
         // Pisahkan nilai 'ciri' menjadi array jika ada
         if (req.body.ciri) {
-            req.body.ciri = req.body.ciri.split(',').map(c => c.trim());
+            req.body.ciri = req.body.ciri.split(';').map(c => c.trim());
         }
         if (req.body.langkahPenanganan) {
-            req.body.langkahPenanganan = req.body.langkahPenanganan.split(',').map(c => c.trim());
+            req.body.langkahPenanganan = req.body.langkahPenanganan.split(';').map(c => c.trim());
         }
         const artikel = await Artikel.findOneAndUpdate(
             { namaArtikel: req.params.namaArtikel },
@@ -403,12 +443,12 @@ router.post('/artikel/:namaArtikel/update', async (req, res) => {
         );
 
         if (!artikel) {
-            return res.status(404).send();
+            return res.render('alert', { message: 'No artikel' })
         }
 
         res.redirect(`/artikel/${req.params.namaArtikel}`);
     } catch (error) {
-        res.status(400).send(error);
+        res.render('alert', { message: error})
     }
 });
 
@@ -417,16 +457,28 @@ router.post('/artikel/:namaArtikel', async (req, res) => {
     try {
         const artikel = await Artikel.findOneAndDelete({ namaArtikel: req.params.namaArtikel });
         if (!artikel) {
-        return res.status(404).send("Artikel tidak ditemukan");
+        return res.render('alert', { message: 'Artikel tidak ditemukan' })
         }
         res.redirect("/");
     } catch (error) {
-        res.status(500).send(error);
+        res.render('alert', { message: error })
     }
 });
 
 router.post('/search', async (req, res) => {
     try {
+        const userData = req.cookies.userData;
+        if (!userData) {
+            return res.redirect("/login");
+        }
+    
+        const { id, username, email, akses, gambar } = JSON.parse(userData);
+        let beranda;
+        if (akses == "1") {
+            beranda = "beranda_admin";
+            } else {
+                beranda = "beranda";
+            }
         const keyword = req.body.keyword;
         // Membuat ekspresi reguler dari kata kunci
         const regex = new RegExp(keyword, 'i'); // 'i' berarti tidak case sensitive
@@ -434,9 +486,16 @@ router.post('/search', async (req, res) => {
         // Mencari artikel yang mengandung keyword dalam namaArtikel
         const artikel = await Artikel.find({ namaArtikel: { $regex: regex } });
 
-        res.render('beranda', { artikel });
+        res.render(beranda, { 
+            artikel: artikel,
+            id: id,
+            username: username, 
+            email: email, 
+            akses: akses, 
+            gambar: gambar 
+          });
     } catch (error) {
-        res.status(500).send(error);
+        res.render('alert', { message: error })
     }
 });
 
@@ -464,224 +523,119 @@ try {
     // res.send('Gambar artikel berhasil diperbarui');
     res.render('updateArtikel', { artikel });
     } else {
-    res.status(404).send('Artikel tidak ditemukan');
+    res.render('alert', { message: 'Artikel tidak ditemukan' });
     }
 } catch (err) {
     console.error('Error:', err);
-    res.status(500).send('Terjadi kesalahan dalam memperbarui gambar artikel');
+    res.render('alert', { message: 'Terjadi kesalahan dalam memperbarui gambar artikel' });
 }
 });
 app.get("/diagnosa", async (req, res) => {
     // Ambil username dari cookie userData
-    const userData = JSON.parse(req.cookies.userData || '{}');
-    const username = userData.username;
-
-    if (!username) {
-        return res.status(400).send('Username not found in cookie.');
+    const userData = req.cookies.userData;
+    if (!userData) {
+        return res.redirect("/login");
     }
+
+    const { id, username, email, akses, gambar } = JSON.parse(userData);
 
     try {
         // Cari history diagnosa berdasarkan username
         // const history = await History.find({ username: username }).exec();
         const history = await History.find({ username: username });
         // Kirim history sebagai respons
-        res.render('diagnosa', { history: history, gambar: "Logo.png" , topPrediction: {class: "isi terlebih dahulu", score: 0} });
+        res.render('diagnosa', { 
+            history: history, 
+            id: id,
+            username: username, 
+            email: email, 
+            akses: akses, 
+            gambar: gambar  
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.render('alert', { message: error });
     }
 });
 
 app.post('/history', async (req, res) => {
     try {
-        const id = req.body.id; // Ekstrak id dari body permintaan
+        const id = req.body.id; // Extract id from request body
         console.log(`Received request for history with ID: ${id}`);
         
-        const diagnosa = await History.findOne({ _id: id }); // Query model History menggunakan id
-        const penyakit = await Artikel.findOne({namaArtikel: diagnosa.hasil.class});
-        if (diagnosa) {
-            console.log('History found:', diagnosa);
-            res.render('result', { item: diagnosa, penyakit: penyakit }); // Render halaman hasil dengan data yang diperoleh
-        } else {
+        const diagnosa = await History.findOne({ _id: id }); // Query the History model using the id
+        if (!diagnosa) {
             console.log('History not found for ID:', id);
-            res.status(404).send('History not found');
+            return res.render('alert', { message: 'History not found' });
         }
+
+        const penyakit = await Artikel.findOne({ namaArtikel: diagnosa.hasil.class });
+        if (!penyakit) {
+            console.log('No article found for the disease class:', diagnosa.hasil.class);
+            return res.render('alert', { message: 'Article not found for the diagnosed disease class' });
+        }
+
+        console.log('History found:', diagnosa);
+        let result;
+        if(diagnosa.hasil.class=="healthy"){
+            result = 'result_healthy';
+        }else{
+            result = 'result';
+        }
+        res.render(result, { item: diagnosa, penyakit: penyakit }); // Render the result page with the data obtained
     } catch (error) {
         console.error('Error fetching history:', error);
-        res.status(500).send('Internal Server Error');
+        res.render('alert', { message: error });
     }
 });
 
+
 app.get('/createArtikel', (req, res) => {
-    res.render('createArtikel');
+    // res.render('createArtikel');
+    try {
+        const userData = req.cookies.userData;
+        if (!userData) {
+          return res.redirect("/login");
+        }
+    
+        const { id, username, email, akses, gambar } = JSON.parse(userData);
+        let createArtikel;
+        if (akses == "1") {
+            createArtikel = "createArtikel";
+          } else {
+              createArtikel = "beranda";
+          }
+        res.render(createArtikel, { 
+          id: id,
+          username: username, 
+          email: email, 
+          akses: akses, 
+          gambar: gambar 
+        });
+      } catch (err) {
+        console.error(err);
+        res.render('alert', { message: err.message });
+      }
   });
   
 
 app.post('/artikel', customUpload.single('gambar'), async (req, res) => {
-    const { namaArtikel, penyebab, ciri, langkahPenanganan } = req.body;
-    const gambar = req.file.filename;
-    const article = new Artikel({ namaArtikel, penyebab, ciri, langkahPenanganan, gambar });
-    await article.save();
-    res.redirect('/');
+    try{
+
+        const { namaArtikel, penyebab, ciri, langkahPenanganan } = req.body;
+        const gambar = req.file.filename;
+        const article = new Artikel({ namaArtikel, penyebab, ciri, langkahPenanganan, gambar });
+        await article.save();
+        res.redirect('/');
+    } catch(e) {
+        res.redirect('/');
+    }
   });
-  
-// Menangani permintaan POST untuk mengklasifikasikan gambar yang diunggah
-// app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
-//     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
-//     if (!req.file) {
-//         return res.status(400).send('No file uploaded.');
-//     }
 
-//     // Path dari file yang diunggah
-//     const imagePath = req.file.path;
-
-//     // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
-//     const newImagePath = `uploads/${req.file.originalname}`;
-//     fs.renameSync(imagePath, newImagePath);
-
-//     // URL dari gambar yang diunggah
-//     const imageUrl = `http://localhost:${port}/${newImagePath}`;
-
-//     // Mengklasifikasikan gambar menggunakan model machine learning
-//     return model
-//         .classify({
-//             imageUrl: imageUrl, // Gunakan URL file lokal sebagai URL gambar
-//         })
-//         .then((predictions) => {
-//             let responseMessage = ''; // Inisialisasi pesan respons
-//             const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
-        
-//             // Menyiapkan pesan respons berdasarkan prediksi
-//             if (topPrediction.class === "blackspot") {
-//                 responseMessage = `Kemungkinan tanaman ini terjangkit penyakit ${topPrediction.class} sebesar ${Math.round(topPrediction.score * 100)}%<br><br>Penanganan penyakit hitam pada tanaman jeruk meliputi tindakan sebelum dan setelah panen. Penyakit ini disebabkan oleh jamur Guignardia citricarpa dan gejalanya termasuk bintik hitam di daun yang berkembang menjadi lingkaran kuning, diikuti oleh kuning dan rontoknya daun.<br>Pada tahap pasca-panen, pengendalian dapat dilakukan dengan menggunakan fungisida seperti pyrimethanil, imazalil, fludioxonil, dan thiabendazole. Penggunaannya bisa melalui penyemprotan, penyaputan batang, atau pengumpulan buah yang terinfeksi. Alternatifnya, penggunaan bakteri endofitik Nodulisporium spp. atau aditif makanan yang mengandung sulfur juga bisa dipertimbangkan.<br>Pengendalian penyakit hitam juga melibatkan sanitasi tanaman, seperti pengumpulan dan pembaran daun yang gugur dari pohon sakit, pemangkasan, dan pengumpulan buah yang terinfeksi. Ini membantu mengurangi penyebaran infeksi dan meminimalkan kerusakan tanaman.`;
-//             } else if (topPrediction.class === "Canker") {
-//                 responseMessage = `Kemungkinan tanaman ini terjangkit penyakit ${topPrediction.class} sebesar ${Math.round(topPrediction.score * 100)}%<br><br>Penanganan kanker pada tanaman jeruk setelah panen dapat dilakukan dengan penggunaan fungisida seperti pyrimethanil, imazalil, fludioxonil, dan thiabendazole. Gejala kanker yang disebabkan oleh jamur Penicillium digitatum meliputi lesi merah muda kebiru-biruan yang berkembang menjadi lesi yang lebih besar dan berwarna merah hingga kehitaman. Metode pengendalian lain termasuk sanitasi tanaman seperti pengumpulan dan pembuangan daun yang gugur, pemangkasan, dan pengambilan buah yang terinfeksi. Selain itu, insektisida seperti Metidation, Abamektin, Dimetoathe, Diazinon, Sipermetrin, dan Imidakloprid juga dapat digunakan melalui penyemprotan atau penyaputan batang.<br><br>Sebagai alternatif, pengendalian kanker pada tanaman jeruk juga dapat dilakukan dengan menggunakan bakteri endofitik Nodulisporium spp. atau aditif makanan yang mengandung sulfur. Praktik-praktik ini, bersama dengan penggunaan fungisida dan tindakan sanitasi lainnya seperti pemangkasan dan pengumpulan buah terinfeksi, dapat membantu mencegah dan mengurangi penyebaran kanker setelah panen.`;
-//             } else {
-//                 responseMessage = `Tanaman Anda sehat`;
-//             }
-        
-//             // Mengirimkan pesan respons JSON
-//             res.json(responseMessage);
-//         })        
-//         .catch((e) => {
-//             // Menangani kesalahan dan mengirim respons 500 Internal Server Error
-//             console.error(e);
-//             res.status(500).send(`Something went wrong!`);
-//         });
-// });const Diagnosa = require('./path/to/diagnosaModel'); // Sesuaikan dengan path file model Diagnosa
-
-// app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
-//     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
-//     if (!req.file) {
-//         return res.status(400).send('No file uploaded.');
-//     }
-
-//     // Path dari file yang diunggah
-//     const imagePath = req.file.path;
-
-//     // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
-//     const newImagePath = `uploads/${req.file.originalname}`;
-//     fs.renameSync(imagePath, newImagePath);
-
-//     // URL dari gambar yang diunggah
-//     const imageUrl = `http://localhost:${port}/${newImagePath}`;
-
-//     // Mengklasifikasikan gambar menggunakan model machine learning
-//     return model
-//         .classify({
-//             imageUrl: imageUrl, // Gunakan URL file lokal sebagai URL gambar
-//         })
-//         .then(async (predictions) => {
-//             let responseMessage = ''; // Inisialisasi pesan respons
-//             const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
-        
-//             // Menyiapkan pesan respons berdasarkan prediksi
-//             if (topPrediction.class === "blackspot") {
-//                 responseMessage = `blackspot`;
-//             } else if (topPrediction.class === "Canker") {
-//                 responseMessage = `Canker`;
-//             } else {
-//                 responseMessage = `Tanaman Anda sehat`;
-//             }
-
-//             // Ambil informasi pengguna dari cookie
-//             const userData = JSON.parse(req.cookies.userData || '{}');
-//             const username = userData.username;
-
-//             // Simpan data diagnosa ke dalam database
-//             const diagnosa = new History({
-//                 username: username, // Ambil username dari cookie
-//                 gambar: imageUrl,
-//                 hasil: responseMessage
-//             });
-
-//             await diagnosa.save(); // Simpan data diagnosa
-
-//             // Mengirimkan pesan respons JSON
-//             res.json(responseMessage);
-//         })        
-//         .catch((e) => {
-//             // Menangani kesalahan dan mengirim respons 500 Internal Server Error
-//             console.error(e);
-//             res.status(500).send(`Something went wrong!`);
-//         });
-// });
-
-// app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
-//     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
-//     if (!req.file) {
-//         return res.status(400).send('No file uploaded.');
-//     }
-
-//     // Path dari file yang diunggah
-//     const imagePath = req.file.path;
-
-//     // Mengubah nama dan memindahkan file ke direktori 'uploads/' dengan nama asli
-//     const newImagePath = `uploads/${req.file.originalname}`;
-//     fs.renameSync(imagePath, newImagePath);
-
-//     // URL dari gambar yang diunggah
-//     const imageUrl = `http://localhost:${port}/${newImagePath}`;
-
-//     // Mengklasifikasikan gambar menggunakan model machine learning
-//     return model
-//         .classify({
-//             imageUrl: imageUrl, // Gunakan URL file lokal sebagai URL gambar
-//         })
-//         .then(async (predictions) => {
-//             // Ambil prediksi teratas
-//             const topPrediction = predictions.reduce((prev, current) => (prev.score > current.score) ? prev : current);
-
-//             // Ambil informasi pengguna dari cookie
-//             const userData = JSON.parse(req.cookies.userData || '{}');
-//             const username = userData.username;
-
-//             if (!username) {
-//                 return res.status(400).send('Username not found in cookie.');
-//             }
-
-//             // Simpan data diagnosa ke dalam database
-//             const diagnosa = new History({
-//                 username: username, // Ambil username dari cookie
-//                 gambar: req.file.originalname,
-//                 hasil: topPrediction,
-//             });
-
-//             await diagnosa.save(); // Simpan data diagnosa
-
-//             // Render halaman EJS dengan data yang diperlukan
-//             res.render('result', { item: diagnosa });
-//         })        
-//         .catch((e) => {
-//             // Menangani kesalahan dan mengirim respons 500 Internal Server Error
-//             console.error(e);
-//             res.status(500).send(`Something went wrong!`);
-//         });
-// });
 app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
     // Jika tidak ada file yang diunggah, kirim respons 400 Bad Request
     if (!req.file) {
-        return res.status(400).send('No file uploaded.');
+        return res.render('alert', { message: "no file uploaded" });
     }
 
     // Path dari file yang diunggah
@@ -717,20 +671,24 @@ app.post("/image/clasify", upload.single('imageFile'), async (req, res) => {
                 gambar: req.file.originalname,
                 hasil: topPrediction,
             });
-
+            
             await diagnosa.save(); // Simpan data diagnosa
-
+            const penyakit = await Artikel.findOne({namaArtikel: diagnosa.hasil.class});
             // Render halaman EJS dengan data yang diperlukan
-            res.render('result', { item: diagnosa });
+            let result;
+            if(diagnosa.hasil.class=="healthy"){
+                result = 'result_healthy';
+            }else{
+                result = 'result';
+            }
+            res.render(result, { item: diagnosa, penyakit: penyakit });
         })        
         .catch((e) => {
             // Menangani kesalahan dan mengirim respons 500 Internal Server Error
             console.error(e);
-            res.status(500).send(`Something went wrong!`);
+            res.render('alert', { message: e });
         });
 });
-
-
 // Mendengarkan permintaan pada port yang telah ditentukan
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

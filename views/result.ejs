@@ -1,12 +1,12 @@
 <body>
-    <div class="flex flex-col justify-start items-start content-center h-[59rem] px-8 overflow-y-scroll">
-        <img class="w-[40rem] h-[40rem]" src="/uploads/<%= item.gambar %>" alt="">
-        <p>Hasil diagnosa:</p>
-        <h1 class="my-3 text-4xl text-black font-bold"><%= item.hasil.class %></h1>
-        <p class="text-left">&nbsp;&nbsp;&nbsp;Kemungkinan tanaman ini terjangkit penyakit <%= item.hasil.class %> sebesar <%= (parseFloat(JSON.stringify(item.hasil.score)) * 100).toFixed(2).replace(/\.00$/, '') %>%. Penyakit ini disebabkan oleh <%= penyakit.penyebab %>.penyakit ini dapat ditangani dengan cara <%= penyakit.langkahPenanganan %></p>
-        <p><br><br>Info lebih lengkap:</p>
+    <div class="flex flex-col justify-start items-start content-start h-[59rem] px-8 mb-20">
+        <img class="w-[20rem] h-[20rem] lg:w-[35rem] lg:h-[35rem]" src="/uploads/<%= item.gambar %>" alt="">
+        <p class="text-sm lg:text-3xl">Hasil diagnosa:</p>
+        <h1 class="my-1 text-xl lg:my-3 lg:text-6xl text-black font-bold"><%= item.hasil.class %> <%= (parseFloat(JSON.stringify(item.hasil.score)) * 100).toFixed(2).replace(/\.00$/, '') %>%</h1><br class="hidden lg:flex">
+        <p class="text-left text-sm lg:text-3xl">Kemungkinan tanaman ini terjangkit penyakit <%= item.hasil.class %> sebesar <%= (parseFloat(JSON.stringify(item.hasil.score)) * 100).toFixed(2).replace(/\.00$/, '') %>%. Penyakit ini disebabkan oleh <%= penyakit.penyebab %>.penyakit ini dapat ditangani dengan cara <%= penyakit.langkahPenanganan %></p>
+        <p class="text-sm lg:text-3xl"><br><br>Info lebih lengkap:</p>
         <li>
-            <a href="/artikel/<%= penyakit.namaArtikel %>"><%= penyakit.namaArtikel %></a>
+            <a class="text-sm lg:text-3xl text-blue-600 hover:underline hover:font-semibold" href="/artikel/<%= penyakit.namaArtikel %>"><%= penyakit.namaArtikel %></a>
         </li>
     </div>
 </body>

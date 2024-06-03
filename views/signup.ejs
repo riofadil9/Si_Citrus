@@ -11,11 +11,11 @@
 
 <body class="bg-gray-200 flex justify-center h-screen">
     <div class="flex flex-col lg:flex-row w-full">
-        <div class="bg-cover bg-center lg:w-1/2" style="background-image: url('/uploads/img/unsplash_4XoCxdMnWFg.jpg');">
+        <div class="bg-cover bg-center lg:w-1/2 bg-transparent lg:bg-[url('/uploads/img/unsplash_4XoCxdMnWFg.jpg')]">
         </div>
-        <div class="flex flex-col items-center justify-center bg-[#2D9596] p-8 rounded-lg shadow-md w-full lg:w-1/2" style="background-color: #2D9596;">
+        <div class="flex flex-col items-center justify-center max-xl:bg-[url('/uploads/img/unsplash_4XoCxdMnWFg.jpg')] bg-[#2D9596] p-8 rounded-lg shadow-md h-screen w-full lg:w-1/2">
             <img class="w-1/2 h-auto" src="/uploads/img/Logo.png" alt="">
-            <form class="flex flex-col bg-[#28667E] gap-3 px-6 py-8 text-xl rounded-xl w-4/5 h-1/2 justify-center items-center text-white" style="background-color: #28667E;" action="/signup" method="POST" onsubmit="return validateForm()">
+            <form class="flex flex-col bg-[#28667E] gap-3 px-3 py-4 lg:px-6 lg:py-8 text-xl rounded-xl w-4/5 h-3/4 lg:h-1/2 justify-center items-center text-white" style="background-color: #28667E;" action="/signup" method="POST" onsubmit="return validateForm()">
                 <div class="flex flex-col flex-1 w-full gap-3">
                     <label for="username">Username</label>
                     <input class="h-4/5 rounded-xl text-black" type="text" name="username">
@@ -27,15 +27,15 @@
                 <div class="flex flex-col flex-1 w-full gap-3 relative">
                     <label for="password">Password</label>
                     <input id="password" class="h-4/5 rounded-xl pr-10 text-black" type="password" name="password">
-                    <button type="button" onclick="togglePassword('password')" class="absolute right-2 top-12 bg-gray-200 text-[#28667E] rounded px-2 py-1">Show</button>
+                    <button type="button" onclick="togglePassword('password')" class="absolute right-2 top-10 lg:top-12 bg-gray-200 text-[#28667E] rounded px-2 py-1">Show</button>
                 </div>
                 <div class="flex flex-col flex-1 w-full gap-3 relative">
                     <label for="password1">Ulangi Password</label>
                     <input id="password1" class="h-4/5 rounded-xl pr-10 text-black" type="password" name="password1">
-                    <button type="button" onclick="togglePassword('password1')" class="absolute right-2 top-12 bg-gray-200 text-[#28667E] rounded px-2 py-1">Show</button>
+                    <button type="button" onclick="togglePassword('password1')" class="absolute right-2 top-10 lg:top-12 bg-gray-200 text-[#28667E] rounded px-2 py-1">Show</button>
                 </div>
                 <div class="flex flex-col flex-1 w-full justify-center items-center">
-                    <button class="rounded-xl bg-[#D9D9D9] text-[#28667E] font-bold px-6 py-4">Sign Up</button>
+                    <button class="h-10 lg:h-12 w-2/3  lg:w-1/2 lg:text-2xl font-bold bg-[#D9D9D9] text-[#2D9596] lg:py-2 rounded-md hover:bg-indigo-600 hover:text-[#d9d9d9] focus:outline-none focus:ring focus:ring-indigo-200 focus:ring-opacity-50">Sign Up</button>
                 </div>
             </form>
 
